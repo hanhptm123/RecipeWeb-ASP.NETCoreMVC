@@ -1,0 +1,98 @@
+﻿@model RecipeWeb.Data.Recipe
+
+@{
+    ViewData["Title"] = "Edit Recipe";
+}
+
+<div class="container mt-4">
+    <!-- Recipe Edit Header -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Edit Recipe</h3>
+            <small class="text-muted">Make changes to your recipe details below</small>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="RecipeId" />
+
+                <div class="form-group mb-3">
+                    <label asp-for="RecipeName" class="control-label"></label>
+                    <input asp-for="RecipeName" class="form-control" />
+                    <span asp-validation-for="RecipeName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Instructions" class="control-label"></label>
+                    <textarea asp-for="Instructions" class="form-control" rows="5"></textarea>
+                    <span asp-validation-for="Instructions" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ImageUrl" class="control-label"></label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="CookTime" class="control-label"></label>
+                    <input asp-for="CookTime" class="form-control" />
+                    <span asp-validation-for="CookTime" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="CategoryId" class="control-label"></label>
+                            <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="OriginId" class="control-label"></label>
+                            <select asp-for="OriginId" class="form-control" asp-items="ViewBag.OriginId"></select>
+                            <span asp-validation-for="OriginId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="IsApproved" class="control-label"></label>
+                    <select asp-for="IsApproved" class="form-control">
+                        <option value="true">Approved</option>
+                        <option value="false">Not Approved</option>
+                    </select>
+                    <span asp-validation-for="IsApproved" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Save Changes" class="btn btn-success" />
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Recipe Image Preview -->
+        <div class="col-md-4">
+            <h5>Recipe Image Preview</h5>
+            <img src="@Model.ImageUrl" class="img-fluid rounded" alt="Recipe Image" />
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
