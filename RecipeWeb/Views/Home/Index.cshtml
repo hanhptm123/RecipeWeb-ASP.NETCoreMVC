@@ -1,6 +1,17 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" id="successMessage">
+        @TempData["SuccessMessage"]
+    </div>
+    <script>
+        setTimeout(function () {
+            document.getElementById("successMessage").style.display = "none";
+        }, 1000);
+    </script>
+}
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
