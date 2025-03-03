@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Login.cshtml";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/login-form.css" />
+</head>
+<div class="inputGroup inputGroup1">
+    <label for="loginEmail" id="loginEmailLabel">Your email</label>
+    <input type="text" id="loginEmail" maxlength="254" name="email" required />
+    <p class="helper helper1">Please enter your email !</p>
+</div>
+<div class="inputGroup inputGroup2">
+    <label for="loginPassword" id="loginPasswordLabel">Password</label>
+    <input type="password" id="loginPassword" name="password" required />
+    <label id="showPasswordToggle" for="showPasswordCheck">
+        Show
+        <input id="showPasswordCheck" type="checkbox" />
+        <div class="indicator"></div>
+    </label>
+</div>
+<div class="inputGroup inputGroup3">
+    <button name="login" id="login">Log in</button>
+</div>
+@section Scripts {
+    <script>
+        // Check if there is a success message
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                        // Wait for 3 seconds and then redirect to the home page
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Index", "Home")'; // Redirect to the Index action of the Home controller
+                        }, 3000); // Time duration to show the message (1 seconds)
+            </text>
+        }
+    </script>
+}
