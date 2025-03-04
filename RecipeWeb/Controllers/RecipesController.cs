@@ -171,5 +171,42 @@ namespace RecipeWeb.Controllers
         {
             return _context.Recipes.Any(e => e.RecipeId == id);
         }
+        [HttpGet]
+        public IActionResult ApproveList(string? status)
+        {
+            IQueryable<Recipe> recipes = _context.Recipes;
+
+            switch (status)
+            {
+                case "accepted":
+                    recipes = recipes.Where(r => r.IsApproved == true);
+                    break;
+                case "cancelled":
+                    recipes = recipes.Where(r => r.IsApproved == false);
+                    break;
+                default: // Mặc định là danh sách chờ duyệt
+                    recipes = recipes.Where(r => r.IsApproved == null);
+                    break;
+            }
+
+            ViewBag.CurrentStatus = status;
+            return View(recipes.ToList());
+        }
+
+
+
+        // Xử lý duyệt hoặc từ chối công thức
+        [HttpPost]
+        public IActionResult Approve(int id, bool isApproved)
+        {
+            var recipe = _context.Recipes.Find(id);
+            if (recipe != null)
+            {
+                recipe.IsApproved = isApproved; // Gán trực tiếp true/false
+                _context.SaveChanges();
+            }
+            return RedirectToAction("ApproveList");
+        }
+
     }
 }
