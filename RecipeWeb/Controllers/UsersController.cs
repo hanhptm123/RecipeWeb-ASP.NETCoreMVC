@@ -64,5 +64,39 @@ namespace RecipeWeb.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(string userName, string email, string password)
+        {
+            // Kiểm tra xem email đã tồn tại chưa
+            if (_context.Users.Any(u => u.Email == email))
+            {
+                TempData["ErrorMessage"] = "Email is already registered.";
+                return RedirectToAction("Register");
+            }
+
+            // Tạo tài khoản mới
+            var newUser = new User
+            {
+                UserName = userName,
+                Email = email,
+                Password = password,
+                Role = "User",   // Mặc định là User
+                IsBanned = false // Mặc định không bị cấm
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Registration successful! Please log in.";
+
+            return RedirectToAction("Login");
+        }
+
     }
 }
