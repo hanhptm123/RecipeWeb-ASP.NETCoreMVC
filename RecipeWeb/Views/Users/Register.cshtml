@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_Register.cshtml";
+}
+
+<style>
+    /* Center text and add spacing */
+    .inputGroup4 {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    /* Styling for the Login link */
+    .login-link {
+        color: #007bff; /* Bootstrap primary color */
+        font-weight: bold;
+        text-decoration: none;
+        transition: color 0.3s ease-in-out;
+    }
+
+        .login-link:hover {
+            color: #0056b3; /* Darker blue on hover */
+            text-decoration: underline;
+        }
+</style>
+
+<form method="post" action="@Url.Action("Register", "Users")">
+    <div class="inputGroup inputGroup1">
+        <label for="userName">Username:</label>
+        <input type="text" id="userName" name="userName" required>
+    </div>
+
+    <div class="inputGroup inputGroup2">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+
+    <div class="inputGroup inputGroup3">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+
+    <div class="inputGroup inputGroup3">
+        <button type="submit">Register</button>
+    </div>
+
+    <div class="inputGroup inputGroup4">
+        <p>
+            Already have an account?
+            <a href="@Url.Action("Login", "Users")" class="login-link">Login here</a>
+        </p>
+    </div>
+</form>

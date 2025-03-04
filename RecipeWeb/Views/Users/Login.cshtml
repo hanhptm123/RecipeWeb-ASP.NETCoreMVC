@@ -3,7 +3,27 @@
     ViewData["Title"] = "Login";
     Layout = "~/Views/Shared/_Login.cshtml";
 }
+<style>
+    /* Center text and add spacing */
+    .inputGroup4 {
+        margin-top: 15px;
+        text-align: center;
+    }
 
+    /* Styling for the Sign-up link */
+    .signup-link {
+        color: #007bff; /* Bootstrap primary color */
+        font-weight: bold;
+        text-decoration: none;
+        transition: color 0.3s ease-in-out;
+    }
+
+        .signup-link:hover {
+            color: #0056b3; /* Darker blue on hover */
+            text-decoration: underline;
+        }
+
+</style>
 <head>
     <link rel="stylesheet" href="~/css/login-form.css" />
 </head>
@@ -24,6 +44,14 @@
 <div class="inputGroup inputGroup3">
     <button name="login" id="login">Log in</button>
 </div>
+<div class="inputGroup inputGroup4 text-center mt-3">
+    <p>
+        Don't have an account?
+        <a href="@Url.Action("Register", "Users")" class="signup-link">Sign up</a>
+    </p>
+</div>
+
+
 @section Scripts {
     <script>
         // Check if there is a success message
