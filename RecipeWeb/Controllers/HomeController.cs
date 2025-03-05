@@ -17,7 +17,10 @@ namespace RecipeWeb.Controllers
         {
             return View();
         }
-
+        public IActionResult AdminLayout()
+        {
+            return View();
+        }
         public IActionResult Privacy()
         {
             return View();
