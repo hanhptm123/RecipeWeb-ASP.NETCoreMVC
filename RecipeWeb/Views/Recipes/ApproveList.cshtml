@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<RecipeWeb.Data.Recipe>
-
+@{
+    Layout = "_AdminLayout";
+}
 <h2>Danh sách công thức</h2>
 
 <!-- Bộ lọc trạng thái -->
@@ -12,10 +14,10 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Tên công thức</th>
-            <th>Mô tả</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
+            <th>Recipe Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Approved</th>
         </tr>
     </thead>
     <tbody>
