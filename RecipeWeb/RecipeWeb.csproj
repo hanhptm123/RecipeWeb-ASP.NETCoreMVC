@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
 </Project>
