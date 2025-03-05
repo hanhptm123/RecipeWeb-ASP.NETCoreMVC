@@ -1,0 +1,99 @@
+﻿@model RecipeWeb.Data.User
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+<style>
+    .sidebar {
+        background-color: #b2f2bb;
+    }
+
+        .sidebar .list-group-item:nth-child(odd) {
+            background-color: #8fd19e;
+            color: black;
+        }
+
+        .sidebar .list-group-item:nth-child(even) {
+            background-color: #b2f2bb;
+            color: black;
+        }
+
+    .profile-card {
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar p-3 rounded">
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action">My Profile</a>
+                <a href="#" class="list-group-item list-group-item-action">My Recipe Management</a>
+                <a href="#" class="list-group-item list-group-item-action">...</a>
+                <a href="#" class="list-group-item list-group-item-action">...</a>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="col-md-9">
+            <div class="card profile-card">
+                <h1 class="text-center mb-4">My Profile</h1>
+
+                <!-- Profile Picture -->
+                <div class="text-center">
+                    <img src="https://storage.googleapis.com/a1aa/image/HTB9nHZW1gHPbRbjvOYV-9TSELHlTpJC2CacMWrosJU.jpg"
+                         alt="Profile picture" class="rounded-circle img-thumbnail" width="120">
+                </div>
+
+                <!-- Profile Info -->
+                <div class="mt-4">
+                    <label class="form-label">User Name</label>
+                    <input type="text" class="form-control" value="@Model.UserName" readonly>
+
+                    <label class="form-label mt-2">Email</label>
+                    <input type="email" class="form-control" value="@Model.Email" readonly>
+
+                    <label class="form-label mt-2">Phone</label>
+                    <input type="text" class="form-control" value="@Model.PhoneNumber" readonly>
+
+                    <label class="form-label mt-2">Address</label>
+                    <input type="text" class="form-control" value="@Model.Address" readonly>
+
+                    <!-- Gender Selection -->
+                    <div class="mt-3">
+                        <label class="form-label">Gender</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="male" name="gender" value="male" @(Model.Gender == "Male" ? "checked" : "") disabled>
+                                <label for="male" class="form-check-label">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="female" name="gender" value="female" @(Model.Gender == "Female" ? "checked" : "") disabled>
+                                <label for="female" class="form-check-label">Female</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="other" name="gender" value="other" @(Model.Gender == "Other" ? "checked" : "") disabled>
+                                <label for="other" class="form-check-label">Other</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Button -->
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("EditProfile", "Users")" class="btn btn-success px-4">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

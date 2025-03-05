@@ -97,6 +97,25 @@ namespace RecipeWeb.Controllers
 
             return RedirectToAction("Login");
         }
+        public async Task<IActionResult> Profile()
+        {
+            int? userId = HttpContext.Session.GetInt32("AccountId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
 
     }
 }

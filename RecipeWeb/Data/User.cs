@@ -19,6 +19,12 @@ public partial class User
 
     public string? Avatar { get; set; }
 
+    public string? Address { get; set; }
+
+    public string? PhoneNumber { get; set; }
+
+    public string Gender { get; set; } = null!;
+
     public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
 
     public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
