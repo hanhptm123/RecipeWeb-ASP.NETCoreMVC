@@ -32,7 +32,6 @@ public partial class RecipeDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
    
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -146,8 +145,17 @@ public partial class RecipeDbContext : DbContext
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACAE0F6783");
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.Gender)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasDefaultValue("Other")
+                .HasColumnName("gender");
             entity.Property(e => e.Password).HasMaxLength(255);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(15)
+                .IsUnicode(false);
             entity.Property(e => e.Role).HasMaxLength(50);
             entity.Property(e => e.UserName).HasMaxLength(255);
         });
