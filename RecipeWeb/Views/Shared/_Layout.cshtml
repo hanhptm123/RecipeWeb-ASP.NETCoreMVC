@@ -39,10 +39,20 @@
 
                 <!-- Sign & Profile -->
                 <div class="d-flex align-items-center">
-                    <a class="text-dark fw-bold me-3" href="@Url.Action("Login", "Users")">Log in</a>
-                    <a href="#" class="btn btn-dark rounded-circle p-2">
-                        <i class="bi bi-person text-white"></i>
-                    </a>
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <a class="text-dark fw-bold me-3" href="@Url.Action("Login", "Users")">Log in</a>
+                    }
+                    @if (User.Identity.IsAuthenticated && !Context.Request.Path.Value.Contains("/Users/Logout"))
+                    {
+                        <a class="text-dark fw-bold me-3" href="@Url.Action("Logout", "Users")">Log out</a>
+                    }
+                    
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        @await Component.InvokeAsync("Avatar")
+                    }
+                  
                     <a href="#" class="ms-3 text-dark fw-bold">
                         <i class="bi bi-heart"></i> Favorite recipe
                     </a>
