@@ -7,6 +7,7 @@ using RecipeWeb.Data;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Identity.Client;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RecipeWeb.Controllers
 {
@@ -87,7 +88,8 @@ namespace RecipeWeb.Controllers
                 Email = email,
                 Password = password,
                 Role = "User",   // Mặc định là User
-                IsBanned = false // Mặc định không bị cấm
+                IsBanned = false, // Mặc định không bị cấm
+                Avatar = "/Images/default-avatar.jpg"
             };
 
             _context.Users.Add(newUser);
@@ -178,6 +180,40 @@ namespace RecipeWeb.Controllers
             return RedirectToAction("Profile");
         }
 
+        [Authorize(Roles = "Admin")]
+        // Feature: User Management
+        [HttpGet]
+        public IActionResult UserManagement(string? status)
+        {
+            IQueryable<User> users = _context.Users.Where(u => u.Role != "Admin"); // Loại bỏ Admin
+
+            switch (status)
+            {
+                case "blocked":
+                    users = users.Where(u => u.IsBanned == true);
+                    break;
+                default:
+                    users = users.Where(u => u.IsBanned == false);
+                    break;
+            }
+
+            ViewBag.CurrentStatus = status;
+            return View(users.ToList());
+        }
+
+        [Authorize(Roles = "Admin")]
+        // Xử lý chặn hoặc gỡ chặn người dùng
+        [HttpPost]
+        public IActionResult BanUser(int id, bool isBanned)
+        {
+            var user = _context.Users.Find(id);
+            if (user != null)
+            {
+                user.IsBanned = isBanned; // Cập nhật trạng thái chặn/gỡ chặn
+                _context.SaveChanges();
+            }
+            return RedirectToAction("UserManagement", new { status = isBanned ? "blocked" : "active" });
+        }
 
 
     }

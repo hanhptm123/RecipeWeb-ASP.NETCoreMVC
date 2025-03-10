@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -171,6 +172,7 @@ namespace RecipeWeb.Controllers
         {
             return _context.Recipes.Any(e => e.RecipeId == id);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult ApproveList(string? status)
         {
@@ -194,7 +196,7 @@ namespace RecipeWeb.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         // Xử lý duyệt hoặc từ chối công thức
         [HttpPost]
         public IActionResult Approve(int id, bool isApproved)

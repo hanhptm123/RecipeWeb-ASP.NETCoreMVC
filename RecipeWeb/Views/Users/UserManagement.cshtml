@@ -1,0 +1,63 @@
+﻿@model IEnumerable<RecipeWeb.Data.User>
+@{
+    Layout = "_AdminLayout";
+    bool isBlockedView = ViewBag.CurrentStatus == "blocked";
+}
+
+<h2 class="text-center font-weight-bold">User Management</h2>
+
+<div class="text-center my-3">
+    <a asp-action="UserManagement" asp-route-status="active"
+       class="btn btn-lg px-4 py-2 fw-bold border rounded-0 @(isBlockedView ? "btn-outline-success" : "btn-success active-tab")">
+        Active
+    </a>
+    <a asp-action="UserManagement" asp-route-status="blocked"
+       class="btn btn-lg px-4 py-2 fw-bold border rounded-0 @(isBlockedView ? "btn-danger active-tab" : "btn-outline-danger")">
+        Banned
+    </a>
+</div>
+
+
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th>Avatar</th>
+            <th>User Name</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td><img src="@user.Avatar" alt="Avatar" class="rounded-circle" width="40" height="40"></td>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>
+                    <form asp-action="BanUser" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@user.UserId" />
+                        <input type="hidden" name="isBanned" value="@(isBlockedView ? "false" : "true")" />
+
+                        <button type="submit" class="btn btn-link p-0" data-bs-toggle="tooltip" title="@(isBlockedView ? "Unban this user" : "Ban this user")">
+                            <i class="bi @(isBlockedView ? "bi-person-check text-success" : "bi-person-x text-danger")" style="font-size: 20px;"></i>
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .active-tab {
+        font-weight: bold;
+        border-width: 2px;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
