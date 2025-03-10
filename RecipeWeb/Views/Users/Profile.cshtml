@@ -41,12 +41,22 @@
                 <a href="#" class="list-group-item list-group-item-action">...</a>
             </div>
         </div>
-
+      
         <!-- Profile Content -->
         <div class="col-md-9">
             <div class="card profile-card">
                 <h1 class="text-center mb-4">My Profile</h1>
-
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success" id="successMessage">
+                        @TempData["SuccessMessage"]
+                    </div>
+                    <script>
+                        setTimeout(function () {
+                            document.getElementById("successMessage").style.display = "none";
+                        }, 3000);
+                    </script>
+                }
                 <!-- Profile Picture -->
                 <div class="text-center">
                     <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; display: inline-block;">

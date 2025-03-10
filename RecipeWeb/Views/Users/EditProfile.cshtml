@@ -47,10 +47,7 @@
             <div class="card profile-card">
                 <h1 class="text-center mb-4">Edit Profile</h1>
 
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-                }
+               
 
                 <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
                     <!-- Profile Picture -->
@@ -62,6 +59,7 @@
                                  style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <input type="file" name="avatarFile" class="form-control mt-2" id="avatarInput" accept="image/*">
+                        <small class="text-muted d-block mt-1">Click to choose an image for your avatar.</small>
                     </div>
 
 
@@ -120,4 +118,5 @@
             reader.readAsDataURL(file); // Đọc file dưới dạng URL
         }
     });
+   
 </script>

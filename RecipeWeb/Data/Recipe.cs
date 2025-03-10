@@ -27,6 +27,8 @@ public partial class Recipe
 
     public int? CookTime { get; set; }
 
+    public int? CountView { get; set; }
+
     public virtual Category? Category { get; set; }
 
     public virtual ICollection<DetailRecipeIngredient> DetailRecipeIngredients { get; set; } = new List<DetailRecipeIngredient>();
