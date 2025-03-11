@@ -1,75 +1,152 @@
 ﻿@model RecipeWeb.Data.Recipe
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Add a Recipe";
 }
 
-<h1>Create</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add a Recipe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">ADD A RECIPE</h1>
 
-<h4>Recipe</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="RecipeName" class="control-label"></label>
-                <input asp-for="RecipeName" class="form-control" />
-                <span asp-validation-for="RecipeName" class="text-danger"></span>
+        @* Hiển thị thông báo lỗi chung *@
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <strong class="font-bold">Oops! </strong>
+                <span class="block sm:inline">Please fill in all required information.</span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+        }
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Recipe title</label>
+                <input asp-for="RecipeName" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" placeholder="Recipe title" />
+                <span asp-validation-for="RecipeName" class="text-red-500 text-sm"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Instructions" class="control-label"></label>
-                <input asp-for="Instructions" class="form-control" />
-                <span asp-validation-for="Instructions" class="text-danger"></span>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+                <textarea asp-for="Description" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" placeholder="Recipe Description"></textarea>
+                <span asp-validation-for="Description" class="text-red-500 text-sm"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Category</label>
+                <select asp-for="CategoryId" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" asp-items="ViewBag.CategoryId"></select>
+                <span asp-validation-for="CategoryId" class="text-red-500 text-sm"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+
+            <div class="flex flex-wrap mb-4">
+                <div class="w-full md:w-1/3 mb-4 md:mb-0">
+                    @if (!string.IsNullOrEmpty(Model?.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="Recipe Image" class="w-full h-auto mb-2 rounded-lg shadow">
+                    }
+                    else
+                    {
+                        <img id="previewImage" src="https://via.placeholder.com/150" alt="Recipe Image" class="w-full h-auto mb-2 rounded-lg shadow">
+                    }
+
+                    <input type="file" asp-for="ImageFile" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" accept="image/*" onchange="previewFile()">
+                    <span asp-validation-for="ImageFile" class="text-red-500 text-sm"></span>
+                </div>
+
+                <div class="w-full md:w-2/3 md:pl-4 mt-6">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Cook Time:</label>
+                        <input asp-for="CookTime" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" placeholder="Minutes" />
+                        <span asp-validation-for="CookTime" class="text-red-500 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Origin:</label>
+                        <select asp-for="OriginId" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" asp-items="ViewBag.OriginId"></select>
+                        <span asp-validation-for="OriginId" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="IsApproved" class="control-label"></label>
-                <input asp-for="IsApproved" class="form-control" />
-                <span asp-validation-for="IsApproved" class="text-danger"></span>
+
+            <!-- Ingredients Section -->
+            <div class="mb-4">
+                <h2 class="text-xl font-bold mb-2">Ingredients</h2>
+                <div id="ingredientsContainer">
+                    <div class="flex space-x-2 mb-2">
+                        <input type="text" name="IngredientNames[]" class="shadow border rounded py-2 px-3 text-gray-700 w-2/3 focus:outline-none focus:shadow-outline" placeholder="Ingredient Name">
+                        <input type="text" name="IngredientAmounts[]" class="shadow border rounded py-2 px-3 text-gray-700 w-1/3 focus:outline-none focus:shadow-outline" placeholder="Amount">
+                        <button type="button" onclick="removeIngredient(this)" class="bg-red-500 text-white px-3 py-1 rounded">x</button>
+                    </div>
+                </div>
+                <button type="button" onclick="addIngredient()" class="bg-blue-500 text-white px-3 py-1 rounded">Add Ingredient</button>
             </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
+
+            <div class="mb-4">
+                <h2 class="text-xl font-bold mb-2">Instructions</h2>
+                <textarea asp-for="Instructions" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" rows="6"></textarea>
+                <span asp-validation-for="Instructions" class="text-red-500 text-sm"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
+
+            <div class="flex justify-center space-x-4 mt-6">
+                <a asp-action="Index" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition flex items-center justify-center">
+                    Back to List
+                </a>
+
+                <button type="submit" class="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 transition">
+                    Save
+                </button>
+
+
             </div>
-            <div class="form-group">
-                <label asp-for="OriginId" class="control-label"></label>
-                <select asp-for="OriginId" class ="form-control" asp-items="ViewBag.OriginId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CookTime" class="control-label"></label>
-                <input asp-for="CookTime" class="form-control" />
-                <span asp-validation-for="CookTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+
+
         </form>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <script>
+        function previewFile() {
+            const preview = document.getElementById("previewImage");
+            const file = document.querySelector("input[type=file]").files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                preview.src = reader.result;
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addIngredient() {
+            const container = document.getElementById("ingredientsContainer");
+            const div = document.createElement("div");
+            div.classList.add("flex", "space-x-2", "mb-2");
+
+            div.innerHTML = `
+                                <input type="text" name="IngredientNames[]" class="shadow border rounded py-2 px-3 text-gray-700 w-2/3 focus:outline-none focus:shadow-outline" placeholder="Ingredient Name">
+                                <input type="text" name="IngredientAmounts[]" class="shadow border rounded py-2 px-3 text-gray-700 w-1/3 focus:outline-none focus:shadow-outline" placeholder="Amount">
+                                <button type="button" onclick="removeIngredient(this)" class="bg-red-500 text-white px-3 py-1 rounded">x</button>
+                            `;
+
+            container.appendChild(div);
+        }
+
+        function removeIngredient(button) {
+            button.parentElement.remove();
+        }
+    </script>
+
+</body>
+</html>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }
