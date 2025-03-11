@@ -154,31 +154,32 @@ namespace RecipeWeb.Controllers
 
 
         // GET: Recipes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName");
-            ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName");
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId");
+            var recipe = await _context.Recipes
+                .Include(r => r.DetailRecipeIngredients)
+                .ThenInclude(dri => dri.Ingredient) // Load thông tin thành phần từ bảng Ingredient
+                .FirstOrDefaultAsync(r => r.RecipeId == id);
 
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var recipe = await _context.Recipes.FindAsync(id);
             if (recipe == null)
             {
                 return NotFound();
             }
+
+            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", recipe.CategoryId);
+            ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
+            ViewBag.Ingredients = new SelectList(_context.Ingredients, "IngredientId", "IngredientName"); // Danh sách tất cả thành phần có thể chọn
+
             return View(recipe);
         }
+
 
         // POST: Recipes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RecipeId,RecipeName,Description,Instructions,ImageUrl,CreatedAt,IsApproved,CategoryId,UserId,OriginId,CookTime")] Recipe recipe, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(int id, [Bind("RecipeId,RecipeName,Description,Instructions,ImageUrl,CreatedAt,IsApproved,CategoryId,UserId,OriginId,CookTime")] Recipe recipe, IFormFile? imageFile, List<DetailRecipeIngredient> DetailRecipeIngredients)
         {
             if (id != recipe.RecipeId)
             {
@@ -189,11 +190,22 @@ namespace RecipeWeb.Controllers
             {
                 try
                 {
-                    var existingRecipe = await _context.Recipes.AsNoTracking().FirstOrDefaultAsync(r => r.RecipeId == id);
+                    var existingRecipe = await _context.Recipes
+                        .Include(r => r.DetailRecipeIngredients)
+                        .FirstOrDefaultAsync(r => r.RecipeId == id);
+
                     if (existingRecipe == null)
                     {
                         return NotFound();
                     }
+
+                    existingRecipe.RecipeName = recipe.RecipeName;
+                    existingRecipe.Description = recipe.Description;
+                    existingRecipe.Instructions = recipe.Instructions;
+                    existingRecipe.CategoryId = recipe.CategoryId;
+                    existingRecipe.OriginId = recipe.OriginId;
+                    existingRecipe.CookTime = recipe.CookTime;
+                    existingRecipe.IsApproved = recipe.IsApproved;
 
                     if (imageFile != null)
                     {
@@ -206,14 +218,22 @@ namespace RecipeWeb.Controllers
                             await imageFile.CopyToAsync(fileStream);
                         }
 
-                        recipe.ImageUrl = "/images/" + uniqueFileName;
-                    }
-                    else
-                    {
-                        recipe.ImageUrl = existingRecipe.ImageUrl;
+                        existingRecipe.ImageUrl = "/images/" + uniqueFileName;
                     }
 
-                    _context.Update(recipe);
+                    // 🔥 Cập nhật danh sách nguyên liệu (DetailRecipeIngredients)
+                    existingRecipe.DetailRecipeIngredients.Clear();
+                    foreach (var item in DetailRecipeIngredients)
+                    {
+                        existingRecipe.DetailRecipeIngredients.Add(new DetailRecipeIngredient
+                        {
+                            RecipeId = id,
+                            IngredientId = item.IngredientId,
+                            Amount = item.Amount
+                        });
+                    }
+
+                    _context.Update(existingRecipe);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -232,11 +252,10 @@ namespace RecipeWeb.Controllers
 
             ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", recipe.CategoryId);
             ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
-            ViewBag.UserId = new SelectList(_context.Users, "UserId", "UserId", recipe.UserId);
+            ViewBag.Ingredients = new SelectList(_context.Ingredients, "IngredientId", "IngredientName");
 
             return View(recipe);
         }
-
 
         // GET: Recipes/Delete/5
         public async Task<IActionResult> Delete(int? id)
