@@ -24,19 +24,25 @@
                     <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
                         <i class="bi bi-house-door"></i> HOME
                     </a>
-                    <button class="btn btn-outline-dark ms-2">
-                        <i class="bi bi-list"></i> Menu
-                    </button>
-                </div>
 
+                    <!-- Dropdown Menu -->
+                    <div class="dropdown ms-2">
+                        <button class="btn btn-outline-dark dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-list"></i> Menu
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="menuDropdown">
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Recipes" asp-action="SearchByCategory">Search By Category</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Recipes" asp-action="SearchByIngredients">Search By Ingredients</a></li>
+                        </ul>
+                    </div>
+                </div>
                 <!-- Thanh tìm kiếm -->
-                <form class="d-flex flex-grow-1 mx-3">
-                    <input class="form-control rounded-pill px-4" type="search" placeholder="Search">
+                <form class="d-flex flex-grow-1 mx-3" asp-controller="Recipes" asp-action="SearchByName" method="get">
+                    <input class="form-control rounded-pill px-4" type="search" name="searchTerm" placeholder="Search recipes..." aria-label="Search">
                     <button class="btn btn-light ms-2" type="submit">
                         <i class="bi bi-search"></i>
                     </button>
                 </form>
-
                 <!-- Sign & Profile -->
                 <div class="d-flex align-items-center">
                     @if (!User.Identity.IsAuthenticated)
