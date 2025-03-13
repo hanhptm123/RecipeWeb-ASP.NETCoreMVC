@@ -56,6 +56,17 @@ namespace RecipeWeb.Controllers
                 recipe.Instructions = Markdown.ToHtml(recipe.Instructions);
             }
 
+            try
+            {
+                recipe.Countview = recipe.Countview.HasValue ? recipe.Countview + 1 : 1;
+                _context.Entry(recipe).Property(x => x.Countview).IsModified = true;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating Countview: {ex.Message}");
+            }
+
             return View(recipe);
         }
 
@@ -303,5 +314,126 @@ namespace RecipeWeb.Controllers
         {
             return _context.Recipes.Any(e => e.RecipeId == id);
         }
+
+        [HttpGet]
+        public IActionResult ApproveList(string? status)
+        {
+            IQueryable<Recipe> recipes = _context.Recipes;
+
+            switch (status)
+            {
+                case "accepted":
+                    recipes = recipes.Where(r => r.IsApproved == true);
+                    break;
+                case "cancelled":
+                    recipes = recipes.Where(r => r.IsApproved == false);
+                    break;
+                default: // Mặc định là danh sách chờ duyệt
+                    recipes = recipes.Where(r => r.IsApproved == null);
+                    break;
+            }
+
+            ViewBag.CurrentStatus = status;
+            return View(recipes.ToList());
+        }
+
+        // Xử lý duyệt hoặc từ chối công thức
+        [HttpPost]
+        public IActionResult Approve(int id, bool isApproved)
+        {
+            var recipe = _context.Recipes.Find(id);
+            if (recipe != null)
+            {
+                recipe.IsApproved = isApproved; // Gán trực tiếp true/false
+                _context.SaveChanges();
+            }
+            return RedirectToAction("ApproveList");
+        }
+        [HttpGet]
+        public async Task<IActionResult> TopRecipes(int? month, int? year)
+        {
+            // Nếu không có tháng và năm, mặc định lấy tháng và năm hiện tại
+            if (!month.HasValue || !year.HasValue)
+            {
+                month = DateTime.Now.Month;
+                year = DateTime.Now.Year;
+            }
+
+            var topRecipes = await _context.Recipes
+                .Where(r => r.CreatedAt.HasValue && r.CreatedAt.Value.Month == month && r.CreatedAt.Value.Year == year)
+                .OrderByDescending(r => r.Countview)
+                .Take(20)
+                .ToListAsync();
+
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+
+            return View(topRecipes);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchByCategory(int? categoryId)
+        {
+            // Lấy danh sách tất cả loại món ăn để hiển thị trong dropdown
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
+            // Nếu không có categoryId, hiển thị toàn bộ công thức
+            var recipes = _context.Recipes.Include(r => r.Category).AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                recipes = recipes.Where(r => r.CategoryId == categoryId);
+            }
+
+            var result = await recipes.ToListAsync();
+            return View(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchByIngredients(string ingredients)
+        {
+            if (string.IsNullOrEmpty(ingredients))
+            {
+                return View(new List<Recipe>()); // Trả về danh sách rỗng nếu không có nguyên liệu nhập vào
+            }
+
+            // Chuyển danh sách nguyên liệu thành mảng
+            var ingredientList = ingredients.Split(',').Select(i => i.Trim().ToLower()).ToList();
+
+            // Lấy danh sách công thức cùng với nguyên liệu của chúng
+            var recipes = await _context.Recipes
+                .Include(r => r.DetailRecipeIngredients)
+                .ThenInclude(dri => dri.Ingredient)
+                .ToListAsync();
+
+            // Lọc công thức dựa trên số lượng nguyên liệu trùng khớp
+            var rankedRecipes = recipes
+                .Select(recipe => new
+                {
+                    Recipe = recipe,
+                    MatchCount = recipe.DetailRecipeIngredients
+                        .Count(dri => ingredientList.Contains(dri.Ingredient.IngredientName.ToLower()))
+                })
+                .Where(r => r.MatchCount > 0) // Loại bỏ công thức không có nguyên liệu trùng
+                .OrderByDescending(r => r.MatchCount) // Sắp xếp theo số nguyên liệu trùng giảm dần
+                .Select(r => r.Recipe)
+                .ToList();
+
+            return View(rankedRecipes);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchByName(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return View(new List<Recipe>());
+            }
+
+            var recipes = await _context.Recipes
+                .Where(r => r.RecipeName.Contains(searchTerm))
+                .ToListAsync();
+
+            return View(recipes);
+        }
+
+
     }
 }
