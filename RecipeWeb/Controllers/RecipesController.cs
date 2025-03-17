@@ -371,5 +371,22 @@ namespace RecipeWeb.Controllers
             }
             return RedirectToAction("ApproveList");
         }
+        [HttpGet]
+        public async Task<IActionResult> SearchByCategory(int? categoryId)
+        {
+            // Lấy danh sách tất cả loại món ăn để hiển thị trong dropdown
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
+            // Nếu không có categoryId, hiển thị toàn bộ công thức
+            var recipes = _context.Recipes.Include(r => r.Category).AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                recipes = recipes.Where(r => r.CategoryId == categoryId);
+            }
+
+            var result = await recipes.ToListAsync();
+            return View(result);
+        }
     }
 }
