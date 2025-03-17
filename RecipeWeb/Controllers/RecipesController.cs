@@ -388,5 +388,38 @@ namespace RecipeWeb.Controllers
             var result = await recipes.ToListAsync();
             return View(result);
         }
+        [HttpGet]
+        public async Task<IActionResult> SearchByIngredients(string ingredients)
+        {
+            if (string.IsNullOrEmpty(ingredients))
+            {
+                return View(new List<Recipe>()); // Trả về danh sách rỗng nếu không có nguyên liệu nhập vào
+            }
+
+            // Chuyển danh sách nguyên liệu thành mảng
+            var ingredientList = ingredients.Split(',').Select(i => i.Trim().ToLower()).ToList();
+
+            // Lấy danh sách công thức cùng với nguyên liệu của chúng
+            var recipes = await _context.Recipes
+                .Include(r => r.DetailRecipeIngredients)
+                .ThenInclude(dri => dri.Ingredient)
+                .ToListAsync();
+
+            // Lọc công thức dựa trên số lượng nguyên liệu trùng khớp
+            var rankedRecipes = recipes
+                .Select(recipe => new
+                {
+                    Recipe = recipe,
+                    MatchCount = recipe.DetailRecipeIngredients
+                        .Count(dri => ingredientList.Contains(dri.Ingredient.IngredientName.ToLower()))
+                })
+                .Where(r => r.MatchCount > 0) // Loại bỏ công thức không có nguyên liệu trùng
+                .OrderByDescending(r => r.MatchCount) // Sắp xếp theo số nguyên liệu trùng giảm dần
+                .Select(r => r.Recipe)
+                .ToList();
+
+            return View(rankedRecipes);
+        }
+
     }
 }
