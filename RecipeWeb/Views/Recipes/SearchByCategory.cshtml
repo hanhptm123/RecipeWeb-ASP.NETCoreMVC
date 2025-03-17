@@ -1,0 +1,58 @@
+﻿@model List<RecipeWeb.Data.Recipe>
+@{
+    Layout = "_Layout";
+}
+@{
+    ViewData["Title"] = "Search Recipes by Category";
+}
+
+<h2>Search Recipes by Category</h2>
+
+<!-- Dropdown chọn loại món ăn -->
+<form method="get" asp-action="SearchByCategory">
+    <label for="category">Category:</label>
+    <select name="categoryId" id="category">
+        <option value="">-- Select Category --</option>
+        @foreach (var category in ViewBag.Categories)
+        {
+            <option value="@category.CategoryId">@category.CategoryName</option>
+        }
+    </select>
+    <button type="submit">Search</button>
+</form>
+
+<!-- Hiển thị danh sách công thức -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Recipe Name</th>
+            <th>Category</th>
+            <th>Views</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            int index = 1;
+            @foreach (var recipe in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@recipe.RecipeName</td>
+                    <td>@recipe.Category?.CategoryName</td>
+                    <td>@recipe.Countview</td>
+                </tr>
+                index++;
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">No recipes found in this category.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index">Back to List</a>
