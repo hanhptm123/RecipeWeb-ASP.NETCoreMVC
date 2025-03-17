@@ -420,6 +420,19 @@ namespace RecipeWeb.Controllers
 
             return View(rankedRecipes);
         }
+        [HttpGet]
+        public async Task<IActionResult> SearchByName(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return View(new List<Recipe>());
+            }
 
+            var recipes = await _context.Recipes
+                .Where(r => r.RecipeName.Contains(searchTerm))
+                .ToListAsync();
+
+            return View(recipes);
+        }
     }
 }
