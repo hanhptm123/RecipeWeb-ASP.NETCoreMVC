@@ -66,12 +66,13 @@
         </nav>
     </header>
     <div class="main container row">
-       <div class="row">
+        <div class="row">
             <div class="col-3">
                 <!-- Sidebar -->
                 <div class="sidebar p-3 rounded">
                     <div class="list-group">
                         <a href="/Recipes/ApproveList" class="list-group-item list-group-item-action">Approve Recipe</a>
+                        <a href="/Recipes/TopRecipes" class="list-group-item list-group-item-action">Top Recipe</a>
                         <a href="/Users/UserManagement" class="list-group-item list-group-item-action">User Management</a>
                         <a href="#" class="list-group-item list-group-item-action">...</a>
                         <a href="#" class="list-group-item list-group-item-action">...</a>
@@ -83,7 +84,7 @@
                     @RenderBody()
                 </main>
             </div>
-       </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
@@ -107,7 +108,8 @@
         display: flex;
         flex-direction: column;
     }
-    .body{
+
+    .body {
         border: 2px solid #8fd19e; /* Viền màu xanh nhạt */
         border-radius: 10px; /* Bo góc nhẹ */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
@@ -116,6 +118,7 @@
         display: flex;
         flex-direction: column;
     }
+
     .sidebar {
         margin-top: 20px;
         background-color: #b2f2bb;
