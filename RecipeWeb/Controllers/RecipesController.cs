@@ -41,8 +41,8 @@ namespace RecipeWeb.Controllers
                 .Include(r => r.Category)
                 .Include(r => r.Origin)
                 .Include(r => r.User)
-                .Include(r => r.DetailRecipeIngredients) // Load danh sách nguyên liệu
-                    .ThenInclude(dri => dri.Ingredient) // Load tên nguyên liệu
+                .Include(r => r.DetailRecipeIngredients)
+                    .ThenInclude(dri => dri.Ingredient)
                 .FirstOrDefaultAsync(m => m.RecipeId == id);
 
             if (recipe == null)
@@ -54,6 +54,18 @@ namespace RecipeWeb.Controllers
             if (!string.IsNullOrEmpty(recipe.Instructions))
             {
                 recipe.Instructions = Markdown.ToHtml(recipe.Instructions);
+            }
+
+            // Tăng số lượt xem
+            try
+            {
+                recipe.Countview = (recipe.Countview ?? 0) + 1;
+                _context.Entry(recipe).Property(x => x.Countview).IsModified = true;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating Countview: {ex.Message}");
             }
 
             return View(recipe);
@@ -302,6 +314,27 @@ namespace RecipeWeb.Controllers
         private bool RecipeExists(int id)
         {
             return _context.Recipes.Any(e => e.RecipeId == id);
+        }
+        [HttpGet]
+        public async Task<IActionResult> TopRecipes(int? month, int? year)
+        {
+            // Nếu không có tháng và năm, mặc định lấy tháng và năm hiện tại
+            if (!month.HasValue || !year.HasValue)
+            {
+                month = DateTime.Now.Month;
+                year = DateTime.Now.Year;
+            }
+
+            var topRecipes = await _context.Recipes
+                .Where(r => r.CreatedAt.HasValue && r.CreatedAt.Value.Month == month && r.CreatedAt.Value.Year == year)
+                .OrderByDescending(r => r.Countview)
+                .Take(20)
+                .ToListAsync();
+
+            ViewBag.SelectedMonth = month;
+            ViewBag.SelectedYear = year;
+
+            return View(topRecipes);
         }
     }
 }
