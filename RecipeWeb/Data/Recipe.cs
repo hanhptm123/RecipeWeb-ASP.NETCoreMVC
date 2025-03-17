@@ -7,7 +7,6 @@ namespace RecipeWeb.Data;
 
 public partial class Recipe
 {
-    public int? Countview { get; set; }
     public int RecipeId { get; set; }
 
     [Required(ErrorMessage = "Recipe name is required.")]
