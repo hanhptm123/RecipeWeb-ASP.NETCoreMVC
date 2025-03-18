@@ -1,4 +1,8 @@
 ﻿@model List<RecipeWeb.Data.Recipe>
+@{
+    var favouriteRecipes = ViewBag.FavouriteRecipes as List<int> ?? new List<int>();
+}
+
 
 @{
     ViewData["Title"] = "Recipes List";
@@ -17,8 +21,13 @@
         @foreach (var recipe in Model)
         {
             <div class="card shadow-lg" style="width: 20rem;">
-                <div class="card-header bg-primary text-white text-center">
+                <div class="card-header bg-primary text-white text-center d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">@recipe.RecipeName</h5>
+                    <!-- Nút yêu thích -->
+                    <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
+                        <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
+                    </button>
+
                 </div>
                 <div class="card-body text-center">
                     @if (!string.IsNullOrEmpty(recipe.ImageUrl))
@@ -48,5 +57,43 @@
                 </div>
             </div>
         }
+
     </div>
 </div>
+<!-- AJAX -->
+<script>
+    $(document).ready(function () {
+        $(document).on("click", ".fav-button", function () {
+            var button = $(this);
+            var recipeId = button.data("recipe-id");
+            var icon = button.find(".fav-icon");
+
+            console.log("✅ Click event fired for Recipe ID:", recipeId); // Debug
+
+            $.ajax({
+                url: "/Favourites/ToggleFavourite",
+                type: "POST",
+                data: { recipeId: recipeId },
+                success: function (response) {
+                    console.log("✅ Response:", response);
+                    if (response.success) {
+                        // Thay đổi icon trái tim ngay lập tức mà không cần gọi API khác
+                        if (icon.hasClass("far")) {
+                            icon.removeClass("far text-muted").addClass("fas text-danger");
+                        } else {
+                            icon.removeClass("fas text-danger").addClass("far text-muted");
+                        }
+                    } else {
+                        alert("❌ Error: " + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("❌ AJAX Error:", xhr.responseText);
+                    alert("Request failed: " + error);
+                }
+            });
+        });
+    });
+
+</script>
+
