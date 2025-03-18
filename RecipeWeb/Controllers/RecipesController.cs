@@ -25,9 +25,16 @@ namespace RecipeWeb.Controllers
         // GET: Recipes
         public async Task<IActionResult> Index()
         {
-            var recipeDbContext = _context.Recipes.Include(r => r.Category).Include(r => r.Origin).Include(r => r.User);
-            return View(await recipeDbContext.ToListAsync());
+            var approvedRecipes = await _context.Recipes
+                .Include(r => r.Category)
+                .Include(r => r.Origin)
+                .Include(r => r.User)
+                .Where(r => r.IsApproved == true) // Lọc chỉ những công thức đã được duyệt
+                .ToListAsync();
+
+            return View(approvedRecipes);
         }
+
 
         // GET: Recipes/Details/5
         public async Task<IActionResult> Details(int? id)
