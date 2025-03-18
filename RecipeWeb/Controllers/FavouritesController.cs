@@ -88,5 +88,32 @@ namespace RecipeWeb.Controllers
 
             return Json(new { success = false, message = "Recipe not found in favourites" });
         }
+
+        public async Task<IActionResult> TopFavouriteRecipes()
+        {
+            var topRecipes = await _context.Favourites
+                .Include(f => f.Recipe)
+                    .ThenInclude(r => r.Category)
+                .GroupBy(f => f.Recipe)
+                .Select(g => new
+                {
+                    Recipe = g.Key,
+                    FavouriteCount = g.Count()  
+                })
+                .OrderByDescending(g => g.FavouriteCount)
+                .Take(10)  
+                .ToListAsync();
+
+            var viewModel = topRecipes
+                .Select((r, index) => new TopRecipeViewModel
+                {
+                    Rank = index + 1, 
+                    Recipe = r.Recipe,
+                    FavouriteCount = r.FavouriteCount
+                })
+                .ToList();
+
+            return View(viewModel);
+        }
     }
 }

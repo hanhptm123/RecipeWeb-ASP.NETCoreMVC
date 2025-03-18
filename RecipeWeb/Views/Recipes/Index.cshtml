@@ -1,10 +1,6 @@
 ﻿@model List<RecipeWeb.Data.Recipe>
 @{
     var favouriteRecipes = ViewBag.FavouriteRecipes as List<int> ?? new List<int>();
-}
-
-
-@{
     ViewData["Title"] = "Recipes List";
 }
 
@@ -17,83 +13,94 @@
         </a>
     </div>
 
-    <div class="d-flex flex-wrap justify-content-start gap-3">
+    <div class="row row-cols-1 row-cols-md-4 g-4">
         @foreach (var recipe in Model)
         {
-            <div class="card shadow-lg" style="width: 20rem;">
-                <div class="card-header bg-primary text-white text-center d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">@recipe.RecipeName</h5>
-                    <!-- Nút yêu thích -->
-                    <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
-                        <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
-                    </button>
+            <div class="col">
+                <div class="card h-100 shadow-lg">
+                    <!-- Header -->
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@recipe.RecipeName</h5>
+                        <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
+                            <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
+                        </button>
+                    </div>
 
-                </div>
-                <div class="card-body text-center">
-                    @if (!string.IsNullOrEmpty(recipe.ImageUrl))
-                    {
-                        <img src="@recipe.ImageUrl" alt="Recipe Image" class="img-fluid rounded mb-2" style="height: 200px; object-fit: cover;">
-                    }
-                    else
-                    {
-                        <p class="text-muted">No Image Available</p>
-                    }
+                    <!-- Body -->
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center">
+                            @if (!string.IsNullOrEmpty(recipe.ImageUrl))
+                            {
+                                <img src="@recipe.ImageUrl" alt="Recipe Image" class="img-fluid rounded mb-2 recipe-img">
+                            }
+                            else
+                            {
+                                <img src="/images/default-recipe.png" alt="Default Image" class="img-fluid rounded mb-2 recipe-img">
+                            }
+                        </div>
+                        <p class="text-muted flex-grow-1">@recipe.Description</p>
+                        <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                        <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
+                        <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
+                    </div>
 
-                    <p class="text-muted">@recipe.Description</p>
-                    <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
-                    <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
-                    <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
-                </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
-                        <i class="fas fa-eye"></i> View
-                    </a>
-                    <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    <a asp-action="Delete" asp-route-id="@recipe.RecipeId" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Delete
-                    </a>
+                    <!-- Footer -->
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@recipe.RecipeId" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
                 </div>
             </div>
         }
-
     </div>
 </div>
+
+<!-- Custom CSS -->
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .card-body {
+        min-height: 300px; /* Giữ chiều cao cố định để tránh lệch */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+</style>
+
 <!-- AJAX -->
 <script>
     $(document).ready(function () {
-        $(document).on("click", ".fav-button", function () {
+        $(".fav-button").on("click", function () {
             var button = $(this);
             var recipeId = button.data("recipe-id");
             var icon = button.find(".fav-icon");
-
-            console.log("✅ Click event fired for Recipe ID:", recipeId); // Debug
 
             $.ajax({
                 url: "/Favourites/ToggleFavourite",
                 type: "POST",
                 data: { recipeId: recipeId },
                 success: function (response) {
-                    console.log("✅ Response:", response);
                     if (response.success) {
-                        // Thay đổi icon trái tim ngay lập tức mà không cần gọi API khác
-                        if (icon.hasClass("far")) {
-                            icon.removeClass("far text-muted").addClass("fas text-danger");
-                        } else {
-                            icon.removeClass("fas text-danger").addClass("far text-muted");
-                        }
+                        icon.toggleClass("far text-muted fas text-danger");
                     } else {
                         alert("❌ Error: " + response.message);
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.log("❌ AJAX Error:", xhr.responseText);
                     alert("Request failed: " + error);
                 }
             });
         });
     });
-
 </script>
-
