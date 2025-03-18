@@ -24,34 +24,36 @@ namespace RecipeWeb.Controllers
         }
 
         // GET: Recipes
-        public async Task<IActionResult> Index()
-        {
-            // Lấy UserId từ Session
-            int? userId = HttpContext.Session.GetInt32("AccountId");
+       public async Task<IActionResult> Index()
+{
+    // Lấy UserId từ Session
+    int? userId = HttpContext.Session.GetInt32("AccountId");
 
-            List<int> favouriteRecipeIds = new List<int>(); // Mặc định danh sách rỗng nếu chưa đăng nhập
+    List<int> favouriteRecipeIds = new List<int>(); // Mặc định danh sách rỗng nếu chưa đăng nhập
 
-            if (userId.HasValue)
-            {
-                // Lấy danh sách công thức yêu thích của user hiện tại
-                favouriteRecipeIds = await _context.Favourites
-                    .Where(f => f.UserId == userId.Value)
-                    .Select(f => f.RecipeId)
-                    .ToListAsync();
-            }
+    if (userId.HasValue)
+    {
+        // Lấy danh sách công thức yêu thích của user hiện tại
+        favouriteRecipeIds = await _context.Favourites
+            .Where(f => f.UserId == userId.Value)
+            .Select(f => f.RecipeId)
+            .ToListAsync();
+    }
 
-            // Lưu danh sách ID công thức yêu thích vào ViewBag
-            ViewBag.FavouriteRecipes = favouriteRecipeIds;
+    // Lưu danh sách ID công thức yêu thích vào ViewBag
+    ViewBag.FavouriteRecipes = favouriteRecipeIds;
 
-            // Lấy danh sách công thức nấu ăn
-            var recipes = await _context.Recipes
-                .Include(r => r.Category)
-                .Include(r => r.Origin)
-                .Include(r => r.User)
-                .ToListAsync();
+    // Lấy danh sách công thức nấu ăn đã được duyệt
+    var recipes = await _context.Recipes
+        .Include(r => r.Category)
+        .Include(r => r.Origin)
+        .Include(r => r.User)
+        .Where(r => r.IsApproved == true) // Lọc chỉ những công thức đã được duyệt
+        .ToListAsync();
 
-            return View(recipes);
-        }
+    return View(recipes);
+}
+
         [HttpPost]
         public async Task<IActionResult> ToggleFavourite(int recipeId)
         {
@@ -81,6 +83,7 @@ namespace RecipeWeb.Controllers
                 return Json(new { success = true, isFavourite = false });
             }
         }
+
 
 
         // GET: Recipes/Details/5
