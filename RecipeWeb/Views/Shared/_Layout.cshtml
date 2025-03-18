@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Cooking_W_Loc.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
     <header>
@@ -64,8 +68,8 @@
 
                     }
 
-                    <a href="#" class="ms-3 text-dark fw-bold">
-                        <i class="bi bi-heart"></i> Favorite recipe
+                    <a asp-controller="Favourites" asp-action="MyFavourites" class="ms-4 mt-2 d-inline-block text-dark fw-bold">
+                        <i class="fa-regular fa-bookmark me-1"></i> Favorite recipe
                     </a>
                 </div>
 
