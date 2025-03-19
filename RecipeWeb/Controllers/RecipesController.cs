@@ -24,35 +24,44 @@ namespace RecipeWeb.Controllers
         }
 
         // GET: Recipes
-       public async Task<IActionResult> Index()
-{
-    // Lấy UserId từ Session
-    int? userId = HttpContext.Session.GetInt32("AccountId");
+        public async Task<IActionResult> Index(string? status)
+        {
+            if (string.IsNullOrEmpty(status))
+            {
+                status = "accepted"; // Mặc định hiển thị danh sách Accepted
+            }
 
-    List<int> favouriteRecipeIds = new List<int>(); // Mặc định danh sách rỗng nếu chưa đăng nhập
+            int? userId = HttpContext.Session.GetInt32("AccountId");
+            List<int> favouriteRecipeIds = new List<int>();
 
-    if (userId.HasValue)
-    {
-        // Lấy danh sách công thức yêu thích của user hiện tại
-        favouriteRecipeIds = await _context.Favourites
-            .Where(f => f.UserId == userId.Value)
-            .Select(f => f.RecipeId)
-            .ToListAsync();
-    }
+            if (userId.HasValue)
+            {
+                favouriteRecipeIds = await _context.Favourites
+                    .Where(f => f.UserId == userId.Value)
+                    .Select(f => f.RecipeId)
+                    .ToListAsync();
+            }
 
-    // Lưu danh sách ID công thức yêu thích vào ViewBag
-    ViewBag.FavouriteRecipes = favouriteRecipeIds;
+            IQueryable<Recipe> recipes = _context.Recipes;
 
-    // Lấy danh sách công thức nấu ăn đã được duyệt
-    var recipes = await _context.Recipes
-        .Include(r => r.Category)
-        .Include(r => r.Origin)
-        .Include(r => r.User)
-        .Where(r => r.IsApproved == true) // Lọc chỉ những công thức đã được duyệt
-        .ToListAsync();
+            switch (status)
+            {
+                case "accepted":
+                    recipes = recipes.Where(r => r.IsApproved == true);
+                    break;
+                case "cancelled":
+                    recipes = recipes.Where(r => r.IsApproved == false);
+                    break;
+                default:
+                    recipes = recipes.Where(r => r.IsApproved == null);
+                    break;
+            }
 
-    return View(recipes);
-}
+            ViewBag.CurrentStatus = status;
+            ViewBag.FavouriteRecipeIds = favouriteRecipeIds;
+
+            return View(await recipes.ToListAsync());
+        }
 
         [HttpPost]
         public async Task<IActionResult> ToggleFavourite(int recipeId)
