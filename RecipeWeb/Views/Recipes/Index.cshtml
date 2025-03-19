@@ -1,18 +1,24 @@
 @model List<RecipeWeb.Data.Recipe>
 @{
-    var favouriteRecipes = ViewBag.FavouriteRecipes as List<int> ?? new List<int>();
+    var favouriteRecipes = ViewBag.FavouriteRecipeIds as List<int> ?? new List<int>();
     ViewData["Title"] = "Recipes List";
 }
 
 <div class="container mt-4">
     <h2 class="mb-4 text-center">🍽️ Recipes</h2>
-
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a asp-action="Create" class="btn btn-success">
             <i class="fas fa-plus"></i> Add New Recipe
         </a>
     </div>
+    <!-- Bộ lọc trạng thái -->
+    <div class="text-center mb-3">
+        <a asp-action="Index" asp-route-status="accepted" class="btn btn-success">✅ Accepted</a>
+        <a asp-action="Index" asp-route-status="pending" class="btn btn-warning">⏳ Pending</a>
+        <a asp-action="Index" asp-route-status="cancelled" class="btn btn-danger">❌ Cancelled</a>
+    </div>
 
+    <!-- Danh sách công thức -->
     <div class="row row-cols-1 row-cols-md-4 g-4">
         @foreach (var recipe in Model)
         {
@@ -21,6 +27,20 @@
                     <!-- Header -->
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">@recipe.RecipeName</h5>
+                        <span class="status-icon btn btn-light">
+                            @if (recipe.IsApproved == true)
+                            {
+                                <i class="fas fa-check-circle text-success"></i> <!-- Accepted -->
+                            }
+                            else if (recipe.IsApproved == false)
+                            {
+                                <i class="fas fa-times-circle text-danger"></i> <!-- Canceled -->
+                            }
+                            else
+                            {
+                                <i class="fas fa-hourglass-half text-warning"></i> <!-- Pending -->
+                            }
+                        </span>
                         <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
                             <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
                         </button>
@@ -70,8 +90,12 @@
         width: 100%;
     }
 
+    .status-icon {
+        margin-right: -100px;
+        font-size: 18px;
+    }
     .card-body {
-        min-height: 300px; /* Giữ chiều cao cố định để tránh lệch */
+        min-height: 300px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
