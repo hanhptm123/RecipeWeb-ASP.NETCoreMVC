@@ -1,0 +1,47 @@
+﻿@model List<TopRecipeViewModel>
+@{
+    ViewData["Title"] = "Top Favourite Recipes";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center text-primary mb-4">Top 10 Favourite Recipes</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Rank</th>
+                    <th>Image</th>
+                    <th>Recipe Name</th>
+                    <th>Favourites</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-danger">#@item.Rank</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Recipe.ImageUrl))
+                            {
+                                <img src="@item.Recipe.ImageUrl" alt="Recipe Image" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <span class="text-muted">No Image</span>
+                            }
+                        </td>
+                        <td>@item.Recipe.RecipeName</td>
+                        <td class="fw-bold text-danger">@item.FavouriteCount</td>
+                        <td>
+                            <a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.Recipe.RecipeId" class="btn btn-primary btn-sm">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

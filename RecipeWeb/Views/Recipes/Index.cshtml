@@ -1,52 +1,130 @@
-﻿@model List<RecipeWeb.Data.Recipe>
-
+@model List<RecipeWeb.Data.Recipe>
 @{
+    var favouriteRecipes = ViewBag.FavouriteRecipeIds as List<int> ?? new List<int>();
     ViewData["Title"] = "Recipes List";
 }
 
 <div class="container mt-4">
     <h2 class="mb-4 text-center">🍽️ Recipes</h2>
-
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a asp-action="Create" class="btn btn-success">
             <i class="fas fa-plus"></i> Add New Recipe
         </a>
     </div>
+    <!-- Bộ lọc trạng thái -->
+    <div class="text-center mb-3">
+        <a asp-action="Index" asp-route-status="accepted" class="btn btn-success">✅ Accepted</a>
+        <a asp-action="Index" asp-route-status="pending" class="btn btn-warning">⏳ Pending</a>
+        <a asp-action="Index" asp-route-status="cancelled" class="btn btn-danger">❌ Cancelled</a>
+    </div>
 
-    <div class="d-flex flex-wrap justify-content-start gap-3">
+    <!-- Danh sách công thức -->
+    <div class="row row-cols-1 row-cols-md-4 g-4">
         @foreach (var recipe in Model)
         {
-            <div class="card shadow-lg" style="width: 20rem;">
-                <div class="card-header bg-primary text-white text-center">
-                    <h5 class="mb-0">@recipe.RecipeName</h5>
-                </div>
-                <div class="card-body text-center">
-                    @if (!string.IsNullOrEmpty(recipe.ImageUrl))
-                    {
-                        <img src="@recipe.ImageUrl" alt="Recipe Image" class="img-fluid rounded mb-2" style="height: 200px; object-fit: cover;">
-                    }
-                    else
-                    {
-                        <p class="text-muted">No Image Available</p>
-                    }
+            <div class="col">
+                <div class="card h-100 shadow-lg">
+                    <!-- Header -->
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@recipe.RecipeName</h5>
+                        <span class="status-icon btn btn-light">
+                            @if (recipe.IsApproved == true)
+                            {
+                                <i class="fas fa-check-circle text-success"></i> <!-- Accepted -->
+                            }
+                            else if (recipe.IsApproved == false)
+                            {
+                                <i class="fas fa-times-circle text-danger"></i> <!-- Canceled -->
+                            }
+                            else
+                            {
+                                <i class="fas fa-hourglass-half text-warning"></i> <!-- Pending -->
+                            }
+                        </span>
+                        <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
+                            <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
+                        </button>
+                    </div>
 
-                    <p class="text-muted">@recipe.Description</p>
-                    <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
-                    <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
-                    <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
-                </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
-                        <i class="fas fa-eye"></i> View
-                    </a>
-                    <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    <a asp-action="Delete" asp-route-id="@recipe.RecipeId" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Delete
-                    </a>
+                    <!-- Body -->
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center">
+                            @if (!string.IsNullOrEmpty(recipe.ImageUrl))
+                            {
+                                <img src="@recipe.ImageUrl" alt="Recipe Image" class="img-fluid rounded mb-2 recipe-img">
+                            }
+                            else
+                            {
+                                <img src="/images/default-recipe.png" alt="Default Image" class="img-fluid rounded mb-2 recipe-img">
+                            }
+                        </div>
+                        <p class="text-muted flex-grow-1">@recipe.Description</p>
+                        <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                        <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
+                        <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@recipe.RecipeId" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
                 </div>
             </div>
         }
     </div>
 </div>
+
+<!-- Custom CSS -->
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .status-icon {
+        margin-right: -100px;
+        font-size: 18px;
+    }
+    .card-body {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+</style>
+
+<!-- AJAX -->
+<script>
+    $(document).ready(function () {
+        $(".fav-button").on("click", function () {
+            var button = $(this);
+            var recipeId = button.data("recipe-id");
+            var icon = button.find(".fav-icon");
+
+            $.ajax({
+                url: "/Favourites/ToggleFavourite",
+                type: "POST",
+                data: { recipeId: recipeId },
+                success: function (response) {
+                    if (response.success) {
+                        icon.toggleClass("far text-muted fas text-danger");
+                    } else {
+                        alert("❌ Error: " + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Request failed: " + error);
+                }
+            });
+        });
+    });
+</script>

@@ -6,10 +6,16 @@
 
 <div class="container mt-5">
     <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
-        <div class="card-header bg-primary text-white text-center py-3">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white text-center py-3 d-flex justify-content-between align-items-center">
             <h2 class="mb-0">@Model.RecipeName</h2>
+            <!-- Nút yêu thích -->
+            <button id="fav-button" class="btn btn-light" onclick="toggleFavourite(@Model.RecipeId)">
+                <i id="fav-icon" class="@(ViewBag.IsFavourite ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
+            </button>
         </div>
 
+        <!-- Nội dung -->
         <div class="card-body">
             <div class="row">
                 <!-- Cột 1: Nội dung chính -->
@@ -90,8 +96,9 @@
         </div>
 
     </div>
-  
 </div>
+
+<!-- Phần bình luận và đánh giá -->
 <div class="container mt-5">
     <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
         <div class="card-header bg-primary text-white text-center py-3">
@@ -123,3 +130,34 @@
         margin-top: 20px;
     }
 </style>
+
+<!-- AJAX -->
+<script>
+    function toggleFavourite(recipeId) {
+        var icon = document.getElementById("fav-icon");
+
+        $.ajax({
+            url: "/Favourites/ToggleFavourite",
+            type: "POST",
+            data: { recipeId: recipeId },
+            success: function (response) {
+                console.log(response);
+                if (response.success) {
+                    if (response.isFavourite) {
+                        icon.classList.remove("far", "text-muted");
+                        icon.classList.add("fas", "text-danger");
+                    } else {
+                        icon.classList.remove("fas", "text-danger");
+                        icon.classList.add("far", "text-muted");
+                    }
+                } else {
+                    alert("Error: " + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr.responseText);
+                alert("Request failed: " + error);
+            }
+        });
+    }
+</script>

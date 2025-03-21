@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using RecipeWeb.Data;
 using Markdig;
 using Microsoft.AspNetCore.Hosting;
+using System.Security.Claims;
 
 namespace RecipeWeb.Controllers
 {
@@ -23,11 +24,76 @@ namespace RecipeWeb.Controllers
         }
 
         // GET: Recipes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? status)
         {
-            var recipeDbContext = _context.Recipes.Include(r => r.Category).Include(r => r.Origin).Include(r => r.User);
-            return View(await recipeDbContext.ToListAsync());
+            if (string.IsNullOrEmpty(status))
+            {
+                status = "accepted"; // Mặc định hiển thị danh sách Accepted
+            }
+
+            int? userId = HttpContext.Session.GetInt32("AccountId");
+            List<int> favouriteRecipeIds = new List<int>();
+
+            if (userId.HasValue)
+            {
+                favouriteRecipeIds = await _context.Favourites
+                    .Where(f => f.UserId == userId.Value)
+                    .Select(f => f.RecipeId)
+                    .ToListAsync();
+            }
+
+            IQueryable<Recipe> recipes = _context.Recipes;
+
+            switch (status)
+            {
+                case "accepted":
+                    recipes = recipes.Where(r => r.IsApproved == true);
+                    break;
+                case "cancelled":
+                    recipes = recipes.Where(r => r.IsApproved == false);
+                    break;
+                default:
+                    recipes = recipes.Where(r => r.IsApproved == null);
+                    break;
+            }
+
+            ViewBag.CurrentStatus = status;
+            ViewBag.FavouriteRecipeIds = favouriteRecipeIds;
+
+            return View(await recipes.ToListAsync());
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleFavourite(int recipeId)
+        {
+            int? userId = HttpContext.Session.GetInt32("AccountId");
+            if (!userId.HasValue)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để yêu thích công thức!" });
+            }
+
+            var favourite = await _context.Favourites
+                .FirstOrDefaultAsync(f => f.UserId == userId.Value && f.RecipeId == recipeId);
+
+            if (favourite == null)
+            {
+                _context.Favourites.Add(new Favourite
+                {
+                    UserId = userId.Value,
+                    RecipeId = recipeId
+                });
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, isFavourite = true });
+            }
+            else
+            {
+                _context.Favourites.Remove(favourite);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, isFavourite = false });
+            }
+        }
+
+
 
         // GET: Recipes/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -54,6 +120,22 @@ namespace RecipeWeb.Controllers
             if (!string.IsNullOrEmpty(recipe.Instructions))
             {
                 recipe.Instructions = Markdown.ToHtml(recipe.Instructions);
+            }
+
+            // Kiểm tra người dùng đã đăng nhập chưa
+            var userId = HttpContext.Session.GetInt32("AccountId");
+
+            if (userId != null)
+            {
+                // Kiểm tra công thức này có trong danh sách yêu thích của người dùng hay không
+                bool isFavourite = await _context.Favourites
+                    .AnyAsync(f => f.UserId == userId && f.RecipeId == id);
+
+                ViewBag.IsFavourite = isFavourite; // Truyền xuống View
+            }
+            else
+            {
+                ViewBag.IsFavourite = false;
             }
 
             // Tăng số lượt xem
