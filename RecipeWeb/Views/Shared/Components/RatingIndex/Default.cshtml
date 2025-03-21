@@ -1,0 +1,107 @@
+﻿@model List<RecipeWeb.Data.Rating>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<div class="review-container">
+    <div class="review-list">
+        @foreach (var rating in Model)
+        {
+            <div class="review">
+                <div class="avatar">
+                    @await Component.InvokeAsync("AvatarComment", new { userId = rating.UserId })
+                </div>
+                <div class="review-content">
+                    <h3 class="username">@rating.User?.UserName</h3>
+                    <div class="stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fas fa-star @(i <= rating.RatingScore ? "rated" : "unrated")"></i>
+                        }
+                    </div>
+                    <div class="date-time">@rating.CreatedAt?.ToString("dd-MM-yyyy HH:mm")</div>
+                    <p class="rating-comment">@rating.Commnent</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+
+    .review-container {
+        width: 80%;
+        margin: 20px auto;
+        border-top: 3px solid #d3e399;
+        border-bottom: 3px solid #d3e399;
+        padding: 20px 0;
+        max-height: 500px; /* Giới hạn chiều cao */
+        overflow-y: auto; /* Hiển thị thanh cuộn khi cần */
+    }
+
+    .review {
+        display: flex;
+        align-items: flex-start;
+        padding: 20px 0;
+        border-bottom: 3px solid #d3e399;
+    }
+
+        .review:last-child {
+            border-bottom: none;
+        }
+
+    .avatar img {
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        margin-right: 20px;
+    }
+
+    .review-content {
+        max-width: 800px;
+    }
+
+    .username {
+        font-size: 1.2em;
+        margin: 0;
+    }
+
+    .stars {
+        font-size: 24px;
+        margin: 5px 0;
+    }
+
+    .rated {
+        color: #ffcc00;
+    }
+
+    .unrated {
+        color: #ccc;
+    }
+
+    .date-time {
+        color: #888;
+        font-size: 0.9em;
+    }
+
+    .rating-comment {
+        margin-top: 10px;
+        font-size: 1rem;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var reviewList = document.querySelector(".review-list");
+        if (reviewList.children.length > 5) {
+            document.querySelector(".review-container").style.overflowY = "scroll";
+        }
+    });
+</script>

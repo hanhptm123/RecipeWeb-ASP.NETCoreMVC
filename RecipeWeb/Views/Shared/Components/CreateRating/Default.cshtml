@@ -1,0 +1,123 @@
+﻿@model RecipeWeb.Data.Rating
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<div class="rating-component">
+    <div class="profile">
+        <div class="avatar-container">
+            @await Component.InvokeAsync("AvatarComment")
+        </div>
+    </div>
+
+    <form asp-action="SubmitRating" asp-controller="Ratings" method="post" class="rating-form">
+        <input type="hidden" name="RecipeId" value="@Model.RecipeId" />
+        <input type="hidden" name="UserId" value="@Model.UserId" />
+
+        <div class="rating-content">
+            <div class="rating-stars">
+                @for (int i = 5; i >= 1; i--)
+                {
+                    <input type="radio" id="star-@i" name="RatingScore" value="@i" @(Model.RatingScore == i ? "checked" : "")>
+                    <label for="star-@i" class="star"><i class="fas fa-star"></i></label>
+                }
+            </div>
+
+            <textarea name="Commnent" placeholder="Please write your comment here........">@Model.Commnent</textarea>
+        </div>
+
+        <button class="mt-2" type="submit">Submit</button>
+    </form>
+</div>
+
+<style>
+    .rating-component {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 2px solid #c7ff9f;
+        border-radius: 20px;
+        padding: 20px;
+        width: 100%; /* Căn chỉnh theo phần tử chứa nó */
+        background-color: #f9fff1;
+    }
+
+
+    .avatar-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+    .rating-form {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .rating-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 5px;
+    }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .rating-stars input:checked ~ label,
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label {
+            color: #FFD700;
+        }
+
+    textarea {
+        border: 2px solid #c7ff9f;
+        border-radius: 20px;
+        padding: 10px;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    button {
+        align-self: flex-end;
+        background-color: #c7ff9f;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        button:hover {
+            background-color: #a3e063;
+        }
+</style>

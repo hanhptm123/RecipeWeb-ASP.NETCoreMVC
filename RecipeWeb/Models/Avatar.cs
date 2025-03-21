@@ -10,7 +10,7 @@ namespace RecipeWeb.Models
         private readonly RecipeDbContext _context;
 
         public Avatar(RecipeDbContext context)
-        {
+        {   
             _context = context;
         }
 
