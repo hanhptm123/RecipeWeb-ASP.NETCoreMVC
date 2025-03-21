@@ -62,6 +62,8 @@
                         <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
                         <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
                         <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
+                        <p><strong>📅 Posted On:</strong> @(recipe.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                        <p><strong>👨‍🍳 Created by:</strong> @(recipe.User?.UserName ?? "Ẩn danh")</p>
                     </div>
 
                     <!-- Footer -->
