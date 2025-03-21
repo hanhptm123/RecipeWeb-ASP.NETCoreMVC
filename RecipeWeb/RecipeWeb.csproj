@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Views\Ratings\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
