@@ -1,107 +1,195 @@
-﻿@model List<RecipeWeb.Data.Rating>
+﻿@model RecipeWeb.Models.RatingViewModel
 
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .rating-section {
+            width: 100%;
+            max-width: 900px;
+            border-top: 3px solid #d4f1a7;
+            border-bottom: 3px solid #d4f1a7;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Đảm bảo rating-header và rating-buttons nằm cùng hàng */
+            flex-wrap: wrap; /* Giúp xuống hàng khi màn hình nhỏ */
+        }
+
+        .rating-header {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Tạo khoảng cách giữa các phần tử bên trong */
+        }
+
+            .rating-header .stars {
+                color: #fdd835;
+                margin-top: 10px;
+            }
+
+            .rating-header .rating-value {
+                font-size: 24px;
+                font-weight: bold;
+            }
+
+            .rating-header .rating-text {
+                font-size: 18px;
+            }
+
+        .rating-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .rating-buttons button {
+                border: 2px solid #ccc;
+                background-color: #fff;
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin: 5px;
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+            }
+
+                .rating-buttons button:hover {
+                    border-color: #000;
+                }
+
+            .rating-buttons .active {
+                border-color: #fdd835;
+                color: #fdd835;
+            }
+
+        .review-container {
+            width: 80%;
+            margin: 20px auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .review {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px 0;
+            border-bottom: 3px solid #d3e399;
+        }
+
+        .avatar img {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            margin-right: 20px;
+        }
+
+        .review-content {
+            max-width: 800px;
+            margin-left: 20px; /* Tạo khoảng cách giữa avatar và nội dung đánh giá */
+        }
+
+
+        .username {
+            font-size: 1.2em;
+            margin: 0;
+        }
+
+        .stars {
+            font-size: 24px;
+            margin: 5px 0;
+        }
+
+        .rated {
+            color: #ffcc00;
+        }
+
+        .unrated {
+            color: #ccc;
+        }
+
+        .date-time {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .rating-comment {
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 
-<div class="review-container">
-    <div class="review-list">
-        @foreach (var rating in Model)
-        {
-            <div class="review">
-                <div class="avatar">
-                    @await Component.InvokeAsync("AvatarComment", new { userId = rating.UserId })
-                </div>
-                <div class="review-content">
-                    <h3 class="username">@rating.User?.UserName</h3>
-                    <div class="stars">
-                        @for (int i = 1; i <= 5; i++)
-                        {
-                            <i class="fas fa-star @(i <= rating.RatingScore ? "rated" : "unrated")"></i>
-                        }
-                    </div>
-                    <div class="date-time">@rating.CreatedAt?.ToString("dd-MM-yyyy HH:mm")</div>
-                    <p class="rating-comment">@rating.Commnent</p>
-                </div>
+<body>
+    <div class="rating-section">
+        <div class="rating-header">
+            <div>
+                <span class="rating-value">@Model.AverageRating.ToString("0.0")</span>
+                <span class="rating-text">out of 5</span>
             </div>
-        }
+            <div class="stars">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <i class="fas fa-star @(i <= Model.AverageRating ? "rated" : "unrated")"></i>
+                }
+            </div>
+        </div>
+        <div class="rating-buttons">
+            <button class="active" onclick="filterReviews(0)">All</button>
+            @for (int i = 5; i >= 1; i--)
+            {
+                <button onclick="filterReviews(@i)">
+                    @i Star (@(Model.RatingGroups.ContainsKey(i) ? Model.RatingGroups[i] : 0))
+                </button>
+            }
+        </div>
     </div>
-</div>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #fff;
-        margin: 0;
-        padding: 0;
-    }
+    <div class="review-container">
+        <div class="review-list">
+            @foreach (var rating in Model.Ratings)
+            {
+                <div class="review" data-rating="@rating.RatingScore">
+                    <div class="avatar">
+                        @await Component.InvokeAsync("AvatarComment", new { userId = rating.UserId })
+                    </div>
+                    <div class="review-content">
+                        <h3 class="username">@rating.User?.UserName</h3>
+                        <div class="stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star @(i <= rating.RatingScore ? "rated" : "unrated")"></i>
+                            }
+                        </div>
+                        <div class="date-time">@rating.CreatedAt?.ToString("dd-MM-yyyy HH:mm")</div>
+                        <p class="rating-comment">@rating.Commnent</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 
-    .review-container {
-        width: 80%;
-        margin: 20px auto;
-        border-top: 3px solid #d3e399;
-        border-bottom: 3px solid #d3e399;
-        padding: 20px 0;
-        max-height: 500px; /* Giới hạn chiều cao */
-        overflow-y: auto; /* Hiển thị thanh cuộn khi cần */
-    }
+    <script>
+        function filterReviews(star) {
+            document.querySelectorAll(".rating-buttons button").forEach(btn => btn.classList.remove("active"));
+            event.target.classList.add("active");
 
-    .review {
-        display: flex;
-        align-items: flex-start;
-        padding: 20px 0;
-        border-bottom: 3px solid #d3e399;
-    }
-
-        .review:last-child {
-            border-bottom: none;
+            document.querySelectorAll(".review").forEach(review => {
+                let rating = review.getAttribute("data-rating");
+                if (star == 0 || rating == star) {
+                    review.style.display = "flex";
+                } else {
+                    review.style.display = "none";
+                }
+            });
         }
-
-    .avatar img {
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        margin-right: 20px;
-    }
-
-    .review-content {
-        max-width: 800px;
-    }
-
-    .username {
-        font-size: 1.2em;
-        margin: 0;
-    }
-
-    .stars {
-        font-size: 24px;
-        margin: 5px 0;
-    }
-
-    .rated {
-        color: #ffcc00;
-    }
-
-    .unrated {
-        color: #ccc;
-    }
-
-    .date-time {
-        color: #888;
-        font-size: 0.9em;
-    }
-
-    .rating-comment {
-        margin-top: 10px;
-        font-size: 1rem;
-    }
-</style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var reviewList = document.querySelector(".review-list");
-        if (reviewList.children.length > 5) {
-            document.querySelector(".review-container").style.overflowY = "scroll";
-        }
-    });
-</script>
+    </script>
+</body>
+</html>
