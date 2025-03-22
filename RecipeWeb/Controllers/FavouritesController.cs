@@ -61,11 +61,17 @@ namespace RecipeWeb.Controllers
             var favouriteRecipes = await _context.Favourites
                 .Where(f => f.UserId == userId)
                 .Include(f => f.Recipe)
-                .ThenInclude(r => r.Category)  
+                    .ThenInclude(r => r.Category)
+                .Include(f => f.Recipe)
+                    .ThenInclude(r => r.User)  
+                .Include(f => f.Recipe)
+                    .ThenInclude(r => r.Ratings)  
                 .ToListAsync();
 
             return View(favouriteRecipes);
         }
+
+
         [HttpPost]
         public async Task<IActionResult> RemoveFromFavourites(int recipeId)
         {

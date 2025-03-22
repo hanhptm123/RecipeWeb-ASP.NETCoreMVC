@@ -24,6 +24,7 @@ namespace RecipeWeb.Controllers
         }
 
         // GET: Recipes
+        // GET: Recipes
         public async Task<IActionResult> Index(string? status)
         {
             if (string.IsNullOrEmpty(status))
@@ -32,20 +33,21 @@ namespace RecipeWeb.Controllers
             }
 
             int? userId = HttpContext.Session.GetInt32("AccountId");
-            List<int> favouriteRecipeIds = new List<int>();
-
-            if (userId.HasValue)
+            if (!userId.HasValue)
             {
-                favouriteRecipeIds = await _context.Favourites
-                    .Where(f => f.UserId == userId.Value)
-                    .Select(f => f.RecipeId)
-                    .ToListAsync();
+                return View(new List<Recipe>()); // Trả về danh sách rỗng nếu chưa đăng nhập
             }
+
+            List<int> favouriteRecipeIds = await _context.Favourites
+                .Where(f => f.UserId == userId.Value)
+                .Select(f => f.RecipeId)
+                .ToListAsync();
 
             IQueryable<Recipe> recipes = _context.Recipes
                 .Include(r => r.Category)
                 .Include(r => r.Origin)
-                .Include(r => r.User);
+                .Include(r => r.User)
+                .Where(r => r.UserId == userId.Value); // Chỉ lấy công thức của user hiện tại
 
             switch (status)
             {
@@ -60,14 +62,13 @@ namespace RecipeWeb.Controllers
                     break;
             }
 
-            recipes = recipes.OrderByDescending(r => r.CreatedAt); // Sắp xếp công thức theo thời gian đăng mới nhất
+            recipes = recipes.OrderByDescending(r => r.CreatedAt); // Sắp xếp theo thời gian đăng mới nhất
 
             ViewBag.CurrentStatus = status;
             ViewBag.FavouriteRecipeIds = favouriteRecipeIds;
 
             return View(await recipes.ToListAsync());
         }
-
 
         [HttpPost]
         public async Task<IActionResult> ToggleFavourite(int recipeId)
