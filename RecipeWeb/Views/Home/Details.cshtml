@@ -82,7 +82,7 @@
                         <p class="fw-bold">@Html.DisplayFor(model => model.Origin.OriginName)</p>
 
                         <h5 class="text-muted"><i class="fas fa-user"></i> Created by</h5>
-                        <p class="fw-bold">@Html.DisplayFor(model => model.User.Email)</p>
+                        <p class="fw-bold">@Html.DisplayFor(model => model.User.UserName)</p>
                     </div>
                 </div>
             </div>
@@ -125,3 +125,35 @@
         });
     }
 </script>
+<!-- Phần bình luận và đánh giá -->
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h2 class="mb-0">Comment & Rating</h2>
+        </div>
+        <div class="card-body">
+            @{
+                var userId = Context.Session.GetInt32("AccountId");
+                var userRating = Model.Ratings?.FirstOrDefault(r => r.UserId == userId);
+
+                if (userId != null && userRating == null)
+                {
+                    @await Component.InvokeAsync("CreateRating", new { recipeId = Model.RecipeId })
+                }
+            }
+
+            <hr class="rating-divider">
+
+            @await Component.InvokeAsync("RatingIndex", new { recipeId = Model.RecipeId })
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-divider {
+        border: none;
+        height: 3px;
+        background-color: #a6d388;
+        margin-top: 20px;
+    }
+</style>
