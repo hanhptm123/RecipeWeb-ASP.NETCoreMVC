@@ -17,26 +17,32 @@ namespace RecipeWeb.Models
 
         public async Task<IViewComponentResult> InvokeAsync(int recipeId)
         {
-            var userId = HttpContext.Session.GetInt32("AccountId");
-
             var ratings = await _context.Ratings
                 .Where(r => r.RecipeId == recipeId)
                 .Include(r => r.User)
                 .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync(); // LUÔN đảm bảo đây là danh sách!
+                .ToListAsync();
 
-            if (userId.HasValue)
+            var groupedRatings = ratings.GroupBy(r => r.RatingScore)
+                .ToDictionary(g => g.Key ?? 0, g => g.Count());
+
+            var averageRating = ratings.Any() ? ratings.Average(r => r.RatingScore ?? 0) : 0;
+
+            var viewModel = new RatingViewModel
             {
-                var userRating = ratings.FirstOrDefault(r => r.UserId == userId);
-                if (userRating != null)
-                {
-                    ratings.Remove(userRating);
-                    ratings.Insert(0, userRating);
-                }
-            }
+                Ratings = ratings,
+                AverageRating = averageRating,
+                RatingGroups = groupedRatings
+            };
 
-            return View(ratings); // Phải là danh sách, không được là một đối tượng đơn lẻ
+            return View(viewModel);
         }
+    }
 
+    public class RatingViewModel
+    {
+        public List<Rating> Ratings { get; set; }
+        public double AverageRating { get; set; }
+        public Dictionary<int, int> RatingGroups { get; set; }
     }
 }

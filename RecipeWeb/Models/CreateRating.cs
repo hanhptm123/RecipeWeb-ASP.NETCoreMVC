@@ -24,6 +24,16 @@ namespace RecipeWeb.Models
                 return View("NotLoggedIn");
             }
 
+            var recipe = await _context.Recipes
+                .Where(r => r.RecipeId == recipeId)
+                .Select(r => new { r.IsApproved })
+                .FirstOrDefaultAsync();
+
+            if (recipe == null || recipe.IsApproved == null)
+            {
+                return Content(string.Empty); // Không hiển thị gì nếu công thức chưa được duyệt
+            }
+
             var existingRating = await _context.Ratings
                 .FirstOrDefaultAsync(r => r.UserId == userId && r.RecipeId == recipeId);
 
@@ -42,6 +52,7 @@ namespace RecipeWeb.Models
 
             return View(model);
         }
+
 
     }
 }
