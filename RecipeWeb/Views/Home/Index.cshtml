@@ -1,14 +1,99 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<RecipeWeb.Data.Recipe>
+@{
+    var favouriteRecipes = ViewBag.FavouriteRecipeIds as List<int> ?? new List<int>();
+    ViewData["Title"] = "Recipes List";
 }
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" id="successMessage">
-        @TempData["SuccessMessage"]
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">🍽️ Recipes</h2>
+
+    <!-- Danh sách công thức đã duyệt -->
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        @foreach (var recipe in Model.Where(r => r.IsApproved == true))
+        {
+            <div class="col">
+                <div class="card h-100 shadow-lg">
+                    <!-- Header -->
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@recipe.RecipeName</h5>
+                        <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
+                            <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center">
+                            @if (!string.IsNullOrEmpty(recipe.ImageUrl))
+                            {
+                                <img src="@recipe.ImageUrl" alt="Recipe Image" class="img-fluid rounded mb-2 recipe-img">
+                            }
+                            else
+                            {
+                                <img src="/images/default-recipe.png" alt="Default Image" class="img-fluid rounded mb-2 recipe-img">
+                            }
+                        </div>
+                        <p class="text-muted flex-grow-1">@recipe.Description</p>
+                        <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                        <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
+                        <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
+                        <p><strong>📅 Posted On:</strong> @(recipe.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                        <p><strong>👨‍🍳 Created by:</strong> @(recipe.User?.UserName ?? "Ẩn danh")</p>
+
+                        </div>
+
+
+                    <!-- Footer -->
+                    <div class="card-footer d-flex justify-content-center">
+                        <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
-    <script>
-        setTimeout(function () {
-            document.getElementById("successMessage").style.display = "none";
-        }, 1000);
-    </script>
-}
+</div>
+
+<!-- Custom CSS -->
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .card-body {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+</style>
+
+<!-- AJAX -->
+<script>
+    $(document).ready(function () {
+        $(".fav-button").on("click", function () {
+            var button = $(this);
+            var recipeId = button.data("recipe-id");
+            var icon = button.find(".fav-icon");
+
+            $.ajax({
+                url: "/Home/ToggleFavourite",
+                type: "POST",
+                data: { recipeId: recipeId },
+                success: function (response) {
+                    if (response.success) {
+                        icon.toggleClass("far text-muted fas text-danger");
+                    } else {
+                        alert("❌ Error: " + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Request failed: " + error);
+                }
+            });
+        });
+    });
+</script>

@@ -42,7 +42,10 @@ namespace RecipeWeb.Controllers
                     .ToListAsync();
             }
 
-            IQueryable<Recipe> recipes = _context.Recipes;
+            IQueryable<Recipe> recipes = _context.Recipes
+                .Include(r => r.Category)
+                .Include(r => r.Origin)
+                .Include(r => r.User);
 
             switch (status)
             {
@@ -57,11 +60,14 @@ namespace RecipeWeb.Controllers
                     break;
             }
 
+            recipes = recipes.OrderByDescending(r => r.CreatedAt); // Sắp xếp công thức theo thời gian đăng mới nhất
+
             ViewBag.CurrentStatus = status;
             ViewBag.FavouriteRecipeIds = favouriteRecipeIds;
 
             return View(await recipes.ToListAsync());
         }
+
 
         [HttpPost]
         public async Task<IActionResult> ToggleFavourite(int recipeId)
@@ -170,11 +176,18 @@ namespace RecipeWeb.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-    [Bind("RecipeId,RecipeName,Description,Instructions,ImageFile,CreatedAt,IsApproved,CategoryId,UserId,OriginId,CookTime")] Recipe recipe,
+    [Bind("RecipeId,RecipeName,Description,Instructions,ImageFile,CreatedAt,IsApproved,CategoryId,OriginId,CookTime")] Recipe recipe,
     List<string> IngredientNames, // Danh sách tên nguyên liệu
     List<string> IngredientAmounts // Danh sách số lượng nguyên liệu
 )
         {
+            // Kiểm tra nếu người dùng đã đăng nhập
+            int? userId = HttpContext.Session.GetInt32("AccountId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Account"); // Chuyển hướng nếu chưa đăng nhập
+            }
+
             // Kiểm tra nếu bất kỳ trường nào bị thiếu
             if (string.IsNullOrWhiteSpace(recipe.RecipeName) ||
                 string.IsNullOrWhiteSpace(recipe.Description) ||
@@ -191,6 +204,10 @@ namespace RecipeWeb.Controllers
 
             if (ModelState.IsValid)
             {
+                // Thiết lập UserId từ session
+                recipe.UserId = userId.Value;
+                recipe.CreatedAt = DateTime.Now;
+
                 // Xử lý ảnh nếu có tải lên
                 if (recipe.ImageFile != null)
                 {
@@ -208,7 +225,6 @@ namespace RecipeWeb.Controllers
                     recipe.ImageUrl = "/uploads/" + uniqueFileName; // Lưu đường dẫn vào DB
                 }
 
-                recipe.CreatedAt = DateTime.Now;
                 _context.Add(recipe);
                 await _context.SaveChangesAsync();
 
