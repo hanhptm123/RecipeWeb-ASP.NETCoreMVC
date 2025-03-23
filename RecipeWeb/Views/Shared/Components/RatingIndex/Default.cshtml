@@ -140,7 +140,9 @@
                     <i class="fas fa-star @(i <= Model.AverageRating ? "rated" : "unrated")"></i>
                 }
             </div>
+            <div class="rating-count">(@Model.TotalRatings Ratings)</div>
         </div>
+
         <div class="rating-buttons">
             <button class="active" onclick="filterReviews(0)">All</button>
             @for (int i = 5; i >= 1; i--)
@@ -153,6 +155,8 @@
     </div>
 
     <div class="review-container">
+        <p id="no-review-message" style="display: none; text-align: center; color: #888; font-size: 1.1em; margin-top: 10px;"></p>
+
         <div class="review-list">
             @foreach (var rating in Model.Ratings)
             {
@@ -190,6 +194,33 @@
                 }
             });
         }
+
+                function filterReviews(star) {
+            document.querySelectorAll(".rating-buttons button").forEach(btn => btn.classList.remove("active"));
+            event.target.classList.add("active");
+
+            let reviews = document.querySelectorAll(".review");
+            let hasReview = false;
+
+            reviews.forEach(review => {
+                let rating = review.getAttribute("data-rating");
+                if (star == 0 || rating == star) {
+                    review.style.display = "flex";
+                    hasReview = true;
+                } else {
+                    review.style.display = "none";
+                }
+            });
+
+            let noReviewMessage = document.getElementById("no-review-message");
+            if (!hasReview) {
+                noReviewMessage.innerText = star + " Star reviews have not been given yet.";
+                noReviewMessage.style.display = "block";
+            } else {
+                noReviewMessage.style.display = "none";
+            }
+        }
+
     </script>
 </body>
 </html>

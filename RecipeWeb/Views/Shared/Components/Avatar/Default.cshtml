@@ -1,9 +1,133 @@
 ﻿@model RecipeWeb.Data.User
 
-<div class="text-center">
-    <a href="/Users/Profile">
-        <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: inline-block;">
-            <img src="@Model.Avatar" alt="Profile picture" style="width: 100%; height: 100%; object-fit: cover;">
+<div class="d-flex align-items-center">
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <a class="text-dark fw-bold me-3" href="@Url.Action("Login", "Users")">Log in</a>
+    }
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="avatar-container" onclick="toggleDropdown()">
+            <div class="avatar">
+                <img src="@Model.Avatar" alt="Profile picture">
+            </div>
+            <div id="avatar-dropdown" class="dropdown-menu">
+                <a href="/Users/Profile">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+
+                @if (User.IsInRole("Admin") && Context.Request.Path != "/Home/AdminLayout")
+                {
+                    <a href="@Url.Action("AdminLayout", "Home")">
+                        <i class="fas fa-user-cog"></i> Admin Page
+                    </a>
+                }
+
+                <a href="@Url.Action("Logout", "Users")" class="logout">
+                    <i class="fas fa-sign-out-alt"></i> Log out
+                </a>
+            </div>
         </div>
-    </a>
+    }
+
+    
 </div>
+
+<style>
+    .avatar-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: inline-block;
+        border: 2px solid #ddd;
+        transition: border-color 0.3s ease-in-out;
+    }
+
+        .avatar:hover {
+            border-color: #007bff;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 55px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        width: 160px;
+        text-align: left;
+        padding: 10px 0;
+        font-size: 14px;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+            .dropdown-menu a:hover {
+                background: #007bff;
+                color: #fff;
+            }
+
+        .dropdown-menu .logout {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+            .dropdown-menu .logout:hover {
+                background: #dc3545;
+                color: #fff;
+            }
+
+    .show {
+        display: block !important;
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<script>
+    function toggleDropdown() {
+        let dropdown = document.getElementById("avatar-dropdown");
+        dropdown.classList.toggle("show");
+    }
+
+    // Ẩn dropdown khi click ra ngoài
+    document.addEventListener("click", function (event) {
+        let dropdown = document.getElementById("avatar-dropdown");
+        let avatarContainer = document.querySelector(".avatar-container");
+
+        if (!avatarContainer.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+</script>
+
+<!-- Import FontAwesome nếu chưa có -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>

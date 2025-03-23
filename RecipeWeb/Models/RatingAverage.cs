@@ -1,20 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecipeWeb.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RecipeWeb.Models
 {
-    public class RatingIndex : ViewComponent
+    public class RatingAverage : ViewComponent
     {
         private readonly RecipeDbContext _context;
 
-        public RatingIndex(RecipeDbContext context)
+        public RatingAverage(RecipeDbContext context)
         {
             _context = context;
         }
-
         public async Task<IViewComponentResult> InvokeAsync(int recipeId)
         {
             var ratings = await _context.Ratings
@@ -39,13 +36,5 @@ namespace RecipeWeb.Models
 
             return View(viewModel);
         }
-    }
-
-    public class RatingViewModel
-    {
-        public List<Rating> Ratings { get; set; }
-        public double AverageRating { get; set; }
-        public Dictionary<int, int> RatingGroups { get; set; }
-        public int TotalRatings { get; set; } // Thêm biến đếm số lượng đánh giá
     }
 }
