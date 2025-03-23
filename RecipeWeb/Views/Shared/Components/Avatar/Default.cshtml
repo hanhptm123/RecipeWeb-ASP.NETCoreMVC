@@ -1,5 +1,7 @@
 ﻿@model RecipeWeb.Data.User
-
+<head>
+    <link rel="stylesheet" href="~/Components/Avatar.css" asp-append-version="true" />
+</head>
 <div class="d-flex align-items-center">
     @if (!User.Identity.IsAuthenticated)
     {
@@ -8,8 +10,8 @@
 
     @if (User.Identity.IsAuthenticated)
     {
-        <div class="avatar-container" onclick="toggleDropdown()">
-            <div class="avatar">
+        <div class="avatar-container-header" onclick="toggleDropdown()">
+            <div class="avatar-header">
                 <img src="@Model.Avatar" alt="Profile picture">
             </div>
             <div id="avatar-dropdown" class="dropdown-menu">
@@ -34,83 +36,6 @@
     
 </div>
 
-<style>
-    .avatar-container {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-    }
-
-    .avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        overflow: hidden;
-        display: inline-block;
-        border: 2px solid #ddd;
-        transition: border-color 0.3s ease-in-out;
-    }
-
-        .avatar:hover {
-            border-color: #007bff;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 55px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        width: 160px;
-        text-align: left;
-        padding: 10px 0;
-        font-size: 14px;
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-        .dropdown-menu a {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 15px;
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-            .dropdown-menu a:hover {
-                background: #007bff;
-                color: #fff;
-            }
-
-        .dropdown-menu .logout {
-            color: #dc3545;
-            font-weight: 600;
-        }
-
-            .dropdown-menu .logout:hover {
-                background: #dc3545;
-                color: #fff;
-            }
-
-    .show {
-        display: block !important;
-        opacity: 1;
-        transform: translateY(0);
-    }
-</style>
 
 <script>
     function toggleDropdown() {
