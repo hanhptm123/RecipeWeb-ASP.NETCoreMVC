@@ -34,7 +34,9 @@
                             }
                         </div>
                         <p class="text-muted flex-grow-1">@recipe.Description</p>
-                        <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                        <!-- Gọi Component hiển thị Rating -->
+                        @await Component.InvokeAsync("RatingAverage", new { recipeId = recipe.RecipeId })
+                        <p style="margin-top: 10px;"><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
                         <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
                         <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
                         <p><strong>📅 Posted On:</strong> @(recipe.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>

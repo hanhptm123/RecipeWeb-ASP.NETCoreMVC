@@ -59,6 +59,11 @@
                             }
                         </div>
                         <p class="text-muted flex-grow-1">@recipe.Description</p>
+                        @if (recipe.IsApproved == true)
+                        {
+                            @await Component.InvokeAsync("RatingAverage", new { recipeId = recipe.RecipeId })
+                        }
+
                         <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
                         <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
                         <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>

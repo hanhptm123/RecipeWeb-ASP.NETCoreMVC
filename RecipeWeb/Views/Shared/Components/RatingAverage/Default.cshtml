@@ -1,0 +1,81 @@
+﻿@model RecipeWeb.Models.RatingViewModel
+
+<div class="rating-container">
+    <div class="rating-group">
+        <div class="rating">
+            <span class="rating-value">@Model.AverageRating.ToString("0.0")</span>
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (i <= Math.Floor(Model.AverageRating))
+                {
+                    <i class="fas fa-star rated"></i>
+                }
+                else if (i == Math.Ceiling(Model.AverageRating) && Model.AverageRating % 1 != 0)
+                {
+                    <i class="fas fa-star-half-alt rated"></i>
+                }
+                else
+                {
+                    <i class="fas fa-star unrated"></i>
+                }
+            }
+        </div>
+        <div class="ratings-count">
+            <span>@Model.TotalRatings Ratings</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-container {
+        display: flex;
+        align-items: center;
+        font-size: 0.9em;
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 220px;
+    }
+
+    .rating-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .rating {
+        display: flex;
+        align-items: center;
+    }
+
+    .rating-value {
+        font-weight: bold;
+        margin-right: 5px;
+        color: #333;
+    }
+
+    .rating i {
+        margin: 0 1px;
+        font-size: 0.85em;
+    }
+
+    .rated {
+        color: gold;
+    }
+
+    .unrated {
+        color: #ccc;
+    }
+
+    .ratings-count {
+        font-weight: 500;
+        color: #555;
+        font-size: 0.85em;
+        margin-left: 10px;
+        padding-left: 10px;
+        border-left: 1px solid #ccc;
+    }
+</style>

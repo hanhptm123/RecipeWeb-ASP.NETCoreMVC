@@ -53,20 +53,16 @@
                     {
                         <a class="text-dark fw-bold me-3" href="@Url.Action("Login", "Users")">Log in</a>
                     }
-                    @if (User.Identity.IsAuthenticated && !Context.Request.Path.Value.Contains("/Users/Logout"))
+                 @*    @if (User.Identity.IsAuthenticated && !Context.Request.Path.Value.Contains("/Users/Logout"))
                     {
                         <a class="text-dark fw-bold me-3" href="@Url.Action("Logout", "Users")">Log out</a>
-                    }
+                    } *@
 
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+                    @if (User.Identity.IsAuthenticated)
                     {
                         @await Component.InvokeAsync("Avatar")
                     }
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                    {
-                        <a class="text-dark fw-bold me-3" href="@Url.Action("AdminLayout", "Home")">Admin Page</a>
-
-                    }
+                  
 
                     <a asp-controller="Favourites" asp-action="MyFavourites" class="ms-4 mt-2 d-inline-block text-dark fw-bold">
                         <i class="fa-regular fa-bookmark me-1"></i> Favorite recipe
