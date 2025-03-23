@@ -1,31 +1,14 @@
 ﻿@model RecipeWeb.Data.User
+<head>
+    <link rel="stylesheet" href="~/Components/AvatarProfile.css" asp-append-version="true" />
+</head>
 
 <div class="text-center">
     <a>
-        <div class="avatar-container">
+        <div class="avatar-container-profile">
             <img src="@Model.Avatar" alt="Profile picture">
         </div>
     </a>
 
 </div>
 
-<style>
-    .avatar-container {
-        display: inline-block;
-        border-radius: 50%;
-        overflow: hidden;
-        width: 100px;
-        height: 100px;
-    }
-
-        .avatar-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-    .user-name {
-        font-weight: bold;
-        margin-top: 5px;
-    }
-</style>

@@ -1,0 +1,24 @@
+﻿
+    .avatar-container-comment
+
+{
+    display: inline-block;
+    border-radius: 50%;
+    overflow: hidden;
+    width: 100px;
+    height: 100px;
+}
+
+.avatar-container-comment img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+
+
