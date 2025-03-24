@@ -473,11 +473,11 @@ namespace RecipeWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchByCategory(int? categoryId)
         {
-            // Lấy danh sách tất cả loại món ăn để hiển thị trong dropdown
             ViewBag.Categories = await _context.Categories.ToListAsync();
 
-            // Nếu không có categoryId, hiển thị toàn bộ công thức
-            var recipes = _context.Recipes.Include(r => r.Category).AsQueryable();
+            var recipes = _context.Recipes
+                .Include(r => r.Category)
+                .Where(r => r.IsApproved == true); // Chỉ lấy công thức đã duyệt
 
             if (categoryId.HasValue)
             {
@@ -487,6 +487,7 @@ namespace RecipeWeb.Controllers
             var result = await recipes.ToListAsync();
             return View(result);
         }
+
         [HttpGet]
         public async Task<IActionResult> SearchByIngredients(string ingredients)
         {
