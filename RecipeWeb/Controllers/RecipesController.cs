@@ -493,19 +493,19 @@ namespace RecipeWeb.Controllers
         {
             if (string.IsNullOrEmpty(ingredients))
             {
-                return View(new List<Recipe>()); // Trả về danh sách rỗng nếu không có nguyên liệu nhập vào
+                return View(new List<Recipe>()); // Trả về danh sách rỗng nếu không nhập nguyên liệu
             }
 
-            // Chuyển danh sách nguyên liệu thành mảng
-            var ingredientList = ingredients.Split(',').Select(i => i.Trim().ToLower()).ToList();
+            var ingredientList = ingredients.Split(',')
+                .Select(i => i.Trim().ToLower())
+                .ToList();
 
-            // Lấy danh sách công thức cùng với nguyên liệu của chúng
             var recipes = await _context.Recipes
                 .Include(r => r.DetailRecipeIngredients)
                 .ThenInclude(dri => dri.Ingredient)
+                .Where(r => r.IsApproved == true) // Chỉ lấy công thức đã được duyệt
                 .ToListAsync();
 
-            // Lọc công thức dựa trên số lượng nguyên liệu trùng khớp
             var rankedRecipes = recipes
                 .Select(recipe => new
                 {
@@ -520,6 +520,7 @@ namespace RecipeWeb.Controllers
 
             return View(rankedRecipes);
         }
+
         [HttpGet]
         public async Task<IActionResult> SearchByName(string searchTerm)
         {
