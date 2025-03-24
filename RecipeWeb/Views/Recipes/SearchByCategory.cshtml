@@ -1,58 +1,69 @@
 ﻿@model List<RecipeWeb.Data.Recipe>
 @{
     Layout = "_Layout";
-}
-@{
     ViewData["Title"] = "Search Recipes by Category";
 }
 
-<h2>Search Recipes by Category</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">🔍 Search Recipes by Category</h2>
 
-<!-- Dropdown chọn loại món ăn -->
-<form method="get" asp-action="SearchByCategory">
-    <label for="category">Category:</label>
-    <select name="categoryId" id="category">
-        <option value="">-- Select Category --</option>
-        @foreach (var category in ViewBag.Categories)
-        {
-            <option value="@category.CategoryId">@category.CategoryName</option>
-        }
-    </select>
-    <button type="submit">Search</button>
-</form>
+    <!-- Dropdown chọn loại món ăn -->
+    <form method="get" asp-action="SearchByCategory" class="d-flex justify-content-center mb-4">
+        <div class="input-group w-50">
+            <label class="input-group-text" for="category">Category</label>
+            <select name="categoryId" id="category" class="form-select">
+                <option value="">-- Select Category --</option>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
 
-<!-- Hiển thị danh sách công thức -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Recipe Name</th>
-            <th>Category</th>
-            <th>Views</th>
-        </tr>
-    </thead>
-    <tbody>
+    <!-- Danh sách công thức -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         @if (Model.Any())
         {
-            int index = 1;
             @foreach (var recipe in Model)
             {
-                <tr>
-                    <td>@index</td>
-                    <td>@recipe.RecipeName</td>
-                    <td>@recipe.Category?.CategoryName</td>
-                    <td>@recipe.Countview</td>
-                </tr>
-                index++;
+                <div class="col">
+                    <div class="card h-100 shadow-lg">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@recipe.RecipeName</h5>
+                            <span class="badge bg-info">@recipe.Category?.CategoryName</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="@(string.IsNullOrEmpty(recipe.ImageUrl) ? "/images/default-recipe.png" : recipe.ImageUrl)"
+                                 alt="Recipe Image" class="img-fluid rounded recipe-img mb-2">
+                            <p class="text-muted">@recipe.Description</p>
+                            <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                            <p><strong>👁️ Views:</strong> @recipe.Countview</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
             }
         }
         else
         {
-            <tr>
-                <td colspan="4" class="text-center">No recipes found in this category.</td>
-            </tr>
+            <div class="col-12 text-center text-muted">No recipes found in this category.</div>
         }
-    </tbody>
-</table>
+    </div>
+</div>
 
-<a asp-action="Index">Back to List</a>
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+</style>
