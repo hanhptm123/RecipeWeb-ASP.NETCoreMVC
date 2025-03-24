@@ -25,9 +25,9 @@
             <div class="col">
                 <div class="card h-100 shadow-lg">
                     <!-- Header -->
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">@recipe.RecipeName</h5>
-                        <span class="status-icon btn btn-light">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center ">
+                        <h5 class="mb-0 col-7">@recipe.RecipeName</h5>
+                        <span class="status-icon btn btn-light fav-button col-2">
                             @if (recipe.IsApproved == true)
                             {
                                 <i class="fas fa-check-circle text-success"></i> <!-- Accepted -->
@@ -41,7 +41,7 @@
                                 <i class="fas fa-hourglass-half text-warning"></i> <!-- Pending -->
                             }
                         </span>
-                        <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
+                        <button class="btn btn-light fav-button col-2" data-recipe-id="@recipe.RecipeId">
                             <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
                         </button>
                     </div>
@@ -97,10 +97,7 @@
         width: 100%;
     }
 
-    .status-icon {
-        margin-right: -100px;
-        font-size: 18px;
-    }
+   
     .card-body {
         min-height: 300px;
         display: flex;
