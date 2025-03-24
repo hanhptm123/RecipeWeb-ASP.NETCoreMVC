@@ -1,47 +1,64 @@
 ﻿@model List<RecipeWeb.Data.Recipe>
 @{
     Layout = "_Layout";
-}
-@{
     ViewData["Title"] = "Search Recipes by Ingredients";
 }
 
-<h2>Search Recipes by Ingredients</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">🔍 Search Recipes by Ingredients</h2>
 
-<!-- Form nhập nguyên liệu -->
-<form method="get" asp-action="SearchByIngredients">
-    <label for="ingredients">Enter ingredients (comma-separated):</label>
-    <input type="text" name="ingredients" id="ingredients" placeholder="e.g., chicken, garlic, onion">
-    <button type="submit">Search</button>
-</form>
+    <!-- Form nhập nguyên liệu -->
+    <form method="get" asp-action="SearchByIngredients" class="d-flex justify-content-center mb-4">
+        <div class="input-group w-50">
+            <label class="input-group-text" for="ingredients">Ingredients</label>
+            <input type="text" name="ingredients" id="ingredients" class="form-control"
+                   placeholder="e.g., chicken, garlic, onion">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
 
-<!-- Hiển thị kết quả tìm kiếm -->
-@if (Model.Any())
-{
-    <h3>Matching Recipes</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Recipe Name</th>
-                <th>View Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Count; i++)
+    <!-- Hiển thị kết quả tìm kiếm -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @if (Model.Any())
+        {
+            @foreach (var recipe in Model)
             {
-                <tr>
-                    <td>@(i + 1)</td>
-                    <td>@Model[i].RecipeName</td>
-                    <td>@Model[i].Countview</td>
-                </tr>
+                <div class="col">
+                    <div class="card h-100 shadow-lg">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@recipe.RecipeName</h5>
+                            <span class="badge bg-info">@recipe.Category?.CategoryName</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="@(string.IsNullOrEmpty(recipe.ImageUrl) ? "/images/default-recipe.png" : recipe.ImageUrl)"
+                                 alt="Recipe Image" class="img-fluid rounded recipe-img mb-2">
+                            <p class="text-muted">@recipe.Description</p>
+                            <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                            <p><strong>👁️ Views:</strong> @recipe.Countview</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No recipes found matching the given ingredients.</p>
-}
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted">No recipes found matching the given ingredients.</div>
+        }
+    </div>
+</div>
 
-<a asp-action="Index">Back to List</a>
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+</style>
