@@ -20,7 +20,7 @@
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="RecipeId" />
             <input type="hidden" asp-for="ImageUrl" /> <!-- Giữ URL ảnh cũ -->
-
+            <input type="hidden" asp-for="UpdateAt" />
 
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Recipe title</label>

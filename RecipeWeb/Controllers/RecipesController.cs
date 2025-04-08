@@ -317,7 +317,7 @@ namespace RecipeWeb.Controllers
                     existingRecipe.OriginId = recipe.OriginId;
                     existingRecipe.CookTime = recipe.CookTime;
                     existingRecipe.IsApproved = recipe.IsApproved;
-
+                    existingRecipe.UpdateAt = DateTime.Now;
                     if (imageFile != null)
                     {
                         string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");

@@ -83,6 +83,12 @@
 
                         <h5 class="text-muted"><i class="fas fa-user"></i> Created by</h5>
                         <p class="fw-bold">@Html.DisplayFor(model => model.User.UserName)</p>
+                        <p class="text-muted">
+                            <i class="fas fa-clock"></i> Create At: @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                        <p class="text-muted">
+                            <i class="fas fa-clock"></i> Update At: @Model.UpdateAt?.ToString("dd/MM/yyyy HH:mm")
+                        </p>
                     </div>
                 </div>
             </div>
