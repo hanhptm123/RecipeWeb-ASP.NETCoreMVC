@@ -1,64 +1,69 @@
 ﻿@model IEnumerable<RecipeWeb.Data.Recipe>
 @{
     Layout = "_AdminLayout";
-}
-
-@{
     ViewData["Title"] = "Top 20 Recipes";
     int selectedMonth = ViewBag.SelectedMonth ?? DateTime.Now.Month;
     int selectedYear = ViewBag.SelectedYear ?? DateTime.Now.Year;
 }
 
-<h2>Top 20 Recipes - @selectedMonth/@selectedYear</h2>
+<div class="container mt-4">
+    <h2 class="text-center text-primary">Top 20 Recipes - @selectedMonth/@selectedYear</h2>
 
-<!-- Form chọn tháng và năm -->
-<form method="get" asp-action="TopRecipes">
-    <label for="month">Month:</label>
-    <select name="month" id="month">
-        @for (int i = 1; i <= 12; i++)
-        {
-            <option value="@i" selected="@(i == selectedMonth ? "selected" : null)">@i</option>
-        }
-    </select>
+    <!-- Form lọc tháng và năm -->
+    <form method="get" asp-action="TopRecipes" class="d-flex align-items-center justify-content-center gap-3 flex-wrap bg-light p-3 rounded shadow-sm row">
+        <div class="col">
+            <label for="month" class="fw-bold">Month:</label>
+            <select name="month" id="month" class="form-select">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i" selected="@(i == selectedMonth ? "selected" : null)">@i</option>
+                }
+            </select>
+        </div>
 
-    <label for="year">Year:</label>
-    <input type="number" name="year" id="year" value="@selectedYear" min="2000" max="@DateTime.Now.Year" />
+        <div class="col">
+            <label for="year" class="fw-bold">Year:</label>
+            <input type="number" name="year" id="year" value="@selectedYear" min="2000" max="@DateTime.Now.Year" class="form-control" />
+        </div>
 
-    <button type="submit">Filter</button>
-</form>
+        <button type="submit" class="btn btn-primary col mt-4"><i class="fas fa-filter"></i> Filter</button>
+    </form>
 
-<!-- Hiển thị danh sách công thức -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Recipe Name</th>
-            <th>Views</th>
-            <th>Category</th>
-            <th>Created At</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Any())
-        {
-            int index = 1;
-            @foreach (var recipe in Model)
-            {
+    <!-- Hiển thị danh sách công thức -->
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered table-hover text-center shadow-sm">
+            <thead class="table-dark">
                 <tr>
-                    <td>@index</td>
-                    <td>@recipe.RecipeName</td>
-                    <td>@recipe.Countview</td>
-                    <td>@recipe.Category?.CategoryName</td>
-                    <td>@recipe.CreatedAt?.ToString("yyyy-MM-dd")</td>
+                    <th>#</th>
+                    <th>Recipe Name</th>
+                    <th>Views</th>
+                    <th>Category</th>
+                    <th>Created At</th>
                 </tr>
-                index++;
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" class="text-center">No recipes found for this period.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    int index = 1;
+                    @foreach (var recipe in Model)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td class="text-start">@recipe.RecipeName</td>
+                            <td>@recipe.Countview</td>
+                            <td>@recipe.Category?.CategoryName</td>
+                            <td>@recipe.CreatedAt?.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                        index++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No recipes found for this period.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
