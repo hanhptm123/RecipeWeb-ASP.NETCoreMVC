@@ -1,6 +1,5 @@
 @model List<RecipeWeb.Data.Recipe>
 @{
-    var favouriteRecipes = ViewBag.FavouriteRecipeIds as List<int> ?? new List<int>();
     ViewData["Title"] = "Recipes List";
 }
 
@@ -11,6 +10,7 @@
             <i class="fas fa-plus"></i> Add New Recipe
         </a>
     </div>
+
     <!-- Bộ lọc trạng thái -->
     <div class="text-center mb-3">
         <a asp-action="Index" asp-route-status="accepted" class="btn btn-success">✅ Accepted</a>
@@ -25,25 +25,22 @@
             <div class="col">
                 <div class="card h-100 shadow-lg">
                     <!-- Header -->
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center ">
-                        <h5 class="mb-0 col-7">@recipe.RecipeName</h5>
-                        <span class="status-icon btn btn-light fav-button col-2">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@recipe.RecipeName</h5>
+                        <div class="status-icon">
                             @if (recipe.IsApproved == true)
                             {
-                                <i class="fas fa-check-circle text-success"></i> <!-- Accepted -->
+                                <i class="fas fa-check-circle text-accepted" title="Accepted"></i>
                             }
                             else if (recipe.IsApproved == false)
                             {
-                                <i class="fas fa-times-circle text-danger"></i> <!-- Canceled -->
+                                <i class="fas fa-times-circle text-danger" title="Cancelled"></i>
                             }
                             else
                             {
-                                <i class="fas fa-hourglass-half text-warning"></i> <!-- Pending -->
+                                <i class="fas fa-hourglass-half text-warning" title="Pending"></i>
                             }
-                        </span>
-                        <button class="btn btn-light fav-button col-2" data-recipe-id="@recipe.RecipeId">
-                            <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
-                        </button>
+                        </div>
                     </div>
 
                     <!-- Body -->
@@ -97,38 +94,19 @@
         width: 100%;
     }
 
-   
+    .status-icon {
+        font-size: 20px;
+    }
+
+    .text-accepted {
+        color: #00ff99; /* màu xanh lá sáng neon */
+    }
+
     .card-body {
         min-height: 300px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
+
 </style>
-
-<!-- AJAX -->
-<script>
-    $(document).ready(function () {
-        $(".fav-button").on("click", function () {
-            var button = $(this);
-            var recipeId = button.data("recipe-id");
-            var icon = button.find(".fav-icon");
-
-            $.ajax({
-                url: "/Favourites/ToggleFavourite",
-                type: "POST",
-                data: { recipeId: recipeId },
-                success: function (response) {
-                    if (response.success) {
-                        icon.toggleClass("far text-muted fas text-danger");
-                    } else {
-                        alert("❌ Error: " + response.message);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    alert("Request failed: " + error);
-                }
-            });
-        });
-    });
-</script>

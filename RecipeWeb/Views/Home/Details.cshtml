@@ -83,6 +83,12 @@
 
                         <h5 class="text-muted"><i class="fas fa-user"></i> Created by</h5>
                         <p class="fw-bold">@Html.DisplayFor(model => model.User.UserName)</p>
+                        <p class="text-muted">
+                            <i class="fas fa-clock"></i> Create At: @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                        <p class="text-muted">
+                            <i class="fas fa-clock"></i> Update At: @Model.UpdateAt?.ToString("dd/MM/yyyy HH:mm")
+                        </p>
                     </div>
                 </div>
             </div>
@@ -90,7 +96,6 @@
 
         <div class="card-footer text-center bg-white">
             <a asp-action="Index" class="btn btn-outline-secondary me-2"><i class="fas fa-arrow-left"></i> Back to List</a>
-            <a asp-action="Edit" asp-route-id="@Model?.RecipeId" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
         </div>
     </div>
 </div>

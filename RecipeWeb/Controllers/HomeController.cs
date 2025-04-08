@@ -103,7 +103,7 @@ namespace RecipeWeb.Controllers
                 bool isFavourite = await _context.Favourites
                     .AnyAsync(f => f.UserId == userId && f.RecipeId == id);
 
-                ViewBag.IsFavourite = isFavourite; 
+                ViewBag.IsFavourite = isFavourite;
             }
             else
             {
@@ -112,17 +112,30 @@ namespace RecipeWeb.Controllers
 
             try
             {
+                // N?u CreateAt ch?a có giá tr?, ??t m?c ??nh là th?i ?i?m hi?n t?i
+                if (recipe.CreatedAt == null)
+                {
+                    recipe.CreatedAt = DateTime.UtcNow;
+                }
+
+                recipe.UpdateAt = DateTime.UtcNow;
                 recipe.Countview = (recipe.Countview ?? 0) + 1;
+
                 _context.Entry(recipe).Property(x => x.Countview).IsModified = true;
+                _context.Entry(recipe).Property(x => x.UpdateAt).IsModified = true;
+                _context.Entry(recipe).Property(x => x.CreatedAt).IsModified = false; // ??m b?o không b? thay ??i
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error updating Countview: {ex.Message}");
+                Console.WriteLine($"Error updating Countview & timestamps: {ex.Message}");
             }
 
             return View(recipe);
         }
+
+
         public IActionResult AdminLayout()
         {
             return View();

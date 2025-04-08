@@ -25,6 +25,7 @@ public partial class Recipe
     public IFormFile? ImageFile { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdateAt { get; set; }
 
     public bool? IsApproved { get; set; }
 
