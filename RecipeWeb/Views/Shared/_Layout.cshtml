@@ -13,83 +13,82 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg" style="background-color: #C6FF99; padding: 10px;">
-            <div class="container-fluid d-flex align-items-center">
+<body class="d-flex flex-column min-vh-100">
+        <header>
+            <nav class="navbar navbar-expand-lg" style="background-color: #C6FF99; padding: 10px;">
+                <div class="container-fluid d-flex align-items-center">
 
-                <!-- Logo -->
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/Images/Avatar_brand.png" asp-append-version="true" alt="Logo" width="80" height="80" class="rounded-circle">
-                </a>
-
-                <!-- Home & Menu -->
-                <div class="d-flex align-items-center">
-                    <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-house-door"></i> HOME
+                    <!-- Logo -->
+                    <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="~/Images/Avatar_brand.png" asp-append-version="true" alt="Logo" width="80" height="80" class="rounded-circle">
                     </a>
 
-                    <!-- Dropdown Menu -->
-                    <div class="dropdown ms-2">
-                        <button class="btn btn-outline-dark dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-list"></i> Menu
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="menuDropdown">
-                            <li><a class="dropdown-item" asp-area="" asp-controller="Recipes" asp-action="SearchByCategory">Search By Category</a></li>
-                            <li><a class="dropdown-item" asp-area="" asp-controller="Recipes" asp-action="SearchByIngredients">Search By Ingredients</a></li>
-                        </ul>
+                    <!-- Home & Menu -->
+                    <div class="d-flex align-items-center">
+                        <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house-door"></i> HOME
+                        </a>
+
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown ms-2">
+                            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-list"></i> Menu Search
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="menuDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Recipes" asp-action="SearchByCategory">Search By Category</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Recipes" asp-action="SearchByIngredients">Search By Ingredients</a></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <!-- Thanh tìm kiếm -->
-                <form class="d-flex flex-grow-1 mx-3" asp-controller="Recipes" asp-action="SearchByName" method="get">
-                    <input class="form-control rounded-pill px-4" type="search" name="searchTerm" placeholder="Search recipes..." aria-label="Search">
-                    <button class="btn btn-light ms-2" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-                <!-- Sign & Profile -->
-                <div class="d-flex align-items-center">
-                    @if (!User.Identity.IsAuthenticated)
-                    {
-                        <a class="text-dark fw-bold me-3" href="@Url.Action("Login", "Users")">Log in</a>
-                    }
-                 @*    @if (User.Identity.IsAuthenticated && !Context.Request.Path.Value.Contains("/Users/Logout"))
-                    {
+                    <!-- Thanh tìm kiếm -->
+                    <form class="d-flex flex-grow-1 mx-3" asp-controller="Recipes" asp-action="SearchByName" method="get">
+                        <input class="form-control rounded-pill px-4" type="search" name="searchTerm" placeholder="Search name recipes..." aria-label="Search">
+                        <button class="btn btn-light ms-2" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                    <!-- Sign & Profile -->
+                    <div class="d-flex align-items-center">
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <a class="text-dark fw-bold me-3" href="@Url.Action("Login", "Users")">Log in</a>
+                        }
+                        @*    @if (User.Identity.IsAuthenticated && !Context.Request.Path.Value.Contains("/Users/Logout"))
+                        {
                         <a class="text-dark fw-bold me-3" href="@Url.Action("Logout", "Users")">Log out</a>
-                    } *@
+                        } *@
 
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        @await Component.InvokeAsync("Avatar")
-                    }
-                  
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @await Component.InvokeAsync("Avatar")
+                        }
 
-                    <a asp-controller="Favourites" asp-action="MyFavourites" class="ms-4 mt-2 d-inline-block text-dark fw-bold">
-                        <i class="fa-regular fa-bookmark me-1"></i> Favorite recipe
-                    </a>
+
+                        <a asp-controller="Favourites" asp-action="MyFavourites" class="ms-4 mt-2 d-inline-block text-dark fw-bold">
+                            <i class="fa-regular fa-bookmark me-1"></i> Favorite recipe
+                        </a>
+                    </div>
+
                 </div>
-
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="custom-footer">
-        <p>&copy; @DateTime.Now.Year My Website. All rights reserved.</p>
-
-        <div class="footer-content">
-            <nav>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Contact</a>
             </nav>
+        </header>
+        <div class="container flex-grow-1">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
 
+        <footer class="custom-footer">
+            <p>&copy; @DateTime.Now.Year My Website. All rights reserved.</p>
+
+            <div class="footer-content">
+                <nav>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact</a>
+                </nav>
+            </div>
+        </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
