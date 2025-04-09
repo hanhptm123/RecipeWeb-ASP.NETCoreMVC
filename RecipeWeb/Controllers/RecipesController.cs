@@ -441,6 +441,7 @@ namespace RecipeWeb.Controllers
         {
             IQueryable<Recipe> recipes = _context.Recipes;
 
+            // Lọc theo trạng thái nếu có
             switch (status)
             {
                 case "accepted":
@@ -449,7 +450,7 @@ namespace RecipeWeb.Controllers
                 case "cancelled":
                     recipes = recipes.Where(r => r.IsApproved == false);
                     break;
-                default: // Mặc định là danh sách chờ duyệt
+                default:
                     recipes = recipes.Where(r => r.IsApproved == null);
                     break;
             }
@@ -458,18 +459,32 @@ namespace RecipeWeb.Controllers
             return View(recipes.ToList());
         }
 
-        // Xử lý duyệt hoặc từ chối công thức
         [HttpPost]
-        public IActionResult Approve(int id, bool isApproved)
+        public IActionResult Approve(int id, bool isApproved, string? rejectReason)
         {
-            var recipe = _context.Recipes.Find(id);
-            if (recipe != null)
+            var recipe = _context.Recipes.FirstOrDefault(r => r.RecipeId == id);
+            if (recipe == null)
             {
-                recipe.IsApproved = isApproved; // Gán trực tiếp true/false
-                _context.SaveChanges();
+                return NotFound();
             }
+
+            recipe.IsApproved = isApproved;
+
+            // Nếu bị từ chối, lưu lý do từ chối
+            if (!isApproved)
+            {
+                recipe.RejectReason = rejectReason;
+            }
+            else
+            {
+                recipe.RejectReason = null; // reset lại nếu từng bị từ chối
+            }
+
+            _context.SaveChanges();
+
             return RedirectToAction("ApproveList");
         }
+
         [HttpGet]
         public async Task<IActionResult> SearchByCategory(int? categoryId)
         {

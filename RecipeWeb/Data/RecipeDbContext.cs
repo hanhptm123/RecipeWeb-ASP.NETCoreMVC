@@ -30,12 +30,11 @@ public partial class RecipeDbContext : DbContext
     public virtual DbSet<Recipe> Recipes { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2BAAA01CE1");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2B260F120E");
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName).HasMaxLength(255);
@@ -64,7 +63,7 @@ public partial class RecipeDbContext : DbContext
 
         modelBuilder.Entity<Favourite>(entity =>
         {
-            entity.HasKey(e => e.FavouriteId).HasName("PK__Favourit__5944B57AC5337092");
+            entity.HasKey(e => e.FavouriteId).HasName("PK__Favourit__5944B57AA6178868");
 
             entity.Property(e => e.FavouriteId).HasColumnName("FavouriteID");
             entity.Property(e => e.RecipeId).HasColumnName("RecipeID");
@@ -83,7 +82,7 @@ public partial class RecipeDbContext : DbContext
 
         modelBuilder.Entity<Ingredient>(entity =>
         {
-            entity.HasKey(e => e.IngredientId).HasName("PK__Ingredie__BEAEB27A4E6A6BB8");
+            entity.HasKey(e => e.IngredientId).HasName("PK__Ingredie__BEAEB27AE56EB2F5");
 
             entity.Property(e => e.IngredientId).HasColumnName("IngredientID");
             entity.Property(e => e.IngredientName).HasMaxLength(255);
@@ -91,7 +90,7 @@ public partial class RecipeDbContext : DbContext
 
         modelBuilder.Entity<Origin>(entity =>
         {
-            entity.HasKey(e => e.OriginId).HasName("PK__Origins__171FA2C688857791");
+            entity.HasKey(e => e.OriginId).HasName("PK__Origins__171FA2C604C0B78C");
 
             entity.Property(e => e.OriginId).HasColumnName("OriginID");
             entity.Property(e => e.OriginName).HasMaxLength(255);
@@ -99,7 +98,7 @@ public partial class RecipeDbContext : DbContext
 
         modelBuilder.Entity<Rating>(entity =>
         {
-            entity.HasKey(e => e.RatingId).HasName("PK__Ratings__FCCDF85C816B3086");
+            entity.HasKey(e => e.RatingId).HasName("PK__Ratings__FCCDF85C8C2988F7");
 
             entity.Property(e => e.RatingId).HasColumnName("RatingID");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
@@ -117,7 +116,7 @@ public partial class RecipeDbContext : DbContext
 
         modelBuilder.Entity<Recipe>(entity =>
         {
-            entity.HasKey(e => e.RecipeId).HasName("PK__Recipes__FDD988D0129F629E");
+            entity.HasKey(e => e.RecipeId).HasName("PK__Recipes__FDD988D0B287F48E");
 
             entity.Property(e => e.RecipeId).HasColumnName("RecipeID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
@@ -142,7 +141,7 @@ public partial class RecipeDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC0E64AAE4");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACD710D281");
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Address).HasMaxLength(255);
