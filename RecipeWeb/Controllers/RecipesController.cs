@@ -9,6 +9,7 @@ using RecipeWeb.Data;
 using Markdig;
 using Microsoft.AspNetCore.Hosting;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RecipeWeb.Controllers
 {
