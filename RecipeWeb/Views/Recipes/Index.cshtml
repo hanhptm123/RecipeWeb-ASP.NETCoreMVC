@@ -5,6 +5,7 @@
 
 <div class="container mt-4">
     <h2 class="mb-4 text-center">🍽️ Recipes</h2>
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a asp-action="Create" class="btn btn-success">
             <i class="fas fa-plus"></i> Add New Recipe
@@ -27,14 +28,21 @@
                     <!-- Header -->
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">@recipe.RecipeName</h5>
-                        <div class="status-icon">
+                        <div class="status-icon-wrapper position-relative">
                             @if (recipe.IsApproved == true)
                             {
                                 <i class="fas fa-check-circle text-accepted" title="Accepted"></i>
                             }
                             else if (recipe.IsApproved == false)
                             {
-                                <i class="fas fa-times-circle text-danger" title="Cancelled"></i>
+                                <!-- Icon từ chối -->
+                                <i class="fas fa-times-circle text-danger" title="Cancelled" onclick="toggleReason(this)" style="cursor:pointer;"></i>
+
+                                <!-- Khung lý do bị từ chối -->
+                                <div class="reason-box alert alert-danger"
+                                     style="display: none;">
+                                 @recipe.RejectReason
+                                 </div>
                             }
                             else
                             {
@@ -94,12 +102,13 @@
         width: 100%;
     }
 
-    .status-icon {
+    .status-icon-wrapper {
         font-size: 20px;
+        position: relative;
     }
 
     .text-accepted {
-        color: #00ff99; /* màu xanh lá sáng neon */
+        color: #00ff99;
     }
 
     .card-body {
@@ -109,4 +118,24 @@
         justify-content: space-between;
     }
 
+    .reason-box {
+        position: absolute;
+        top: 110%;
+        right: 0;
+        z-index: 1050;
+        white-space: nowrap;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
 </style>
+
+<script>
+    function toggleReason(iconElement) {
+        const reasonBox = iconElement.nextElementSibling;
+        if (reasonBox.style.display === "none" || reasonBox.style.display === "") {
+            reasonBox.style.display = "block";
+        } else {
+            reasonBox.style.display = "none";
+        }
+    }
+</script>
