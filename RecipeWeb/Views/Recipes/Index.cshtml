@@ -6,12 +6,6 @@
 <div class="container mt-4">
     <h2 class="mb-4 text-center">🍽️ Recipes</h2>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a asp-action="Create" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add New Recipe
-        </a>
-    </div>
-
     <!-- Bộ lọc trạng thái -->
     <div class="text-center mb-3">
         <a asp-action="Index" asp-route-status="accepted" class="btn btn-success">✅ Accepted</a>
@@ -84,9 +78,10 @@
                         <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <a asp-action="Delete" asp-route-id="@recipe.RecipeId" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> Delete
-                        </a>
+                        <form asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa công thức này không?');">
+                            <input type="hidden" name="id" value="@recipe.RecipeId" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
                     </div>
                 </div>
             </div>
