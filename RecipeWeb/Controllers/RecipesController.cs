@@ -396,6 +396,7 @@ namespace RecipeWeb.Controllers
         {
             var recipe = await _context.Recipes
                 .Include(r => r.DetailRecipeIngredients)
+                .Include(r => r.Favourites) // ⚠️ Nạp thêm danh sách yêu thích liên quan
                 .FirstOrDefaultAsync(r => r.RecipeId == id);
 
             if (recipe == null)
@@ -404,12 +405,14 @@ namespace RecipeWeb.Controllers
             }
 
             _context.DetailRecipeIngredients.RemoveRange(recipe.DetailRecipeIngredients);
-            _context.Recipes.Remove(recipe);
-            await _context.SaveChangesAsync();
 
+            _context.Favourites.RemoveRange(recipe.Favourites);
+
+            _context.Recipes.Remove(recipe);
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
 
         private bool RecipeExists(int id)
         {
