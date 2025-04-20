@@ -263,104 +263,16 @@ namespace RecipeWeb.Controllers
             ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
             return View(recipe);
         }
-
-
         // GET: Recipes/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var recipe = await _context.Recipes
                 .Include(r => r.DetailRecipeIngredients)
-                .ThenInclude(dri => dri.Ingredient) // Load thông tin thành phần từ bảng Ingredient
+                .ThenInclude(dri => dri.Ingredient)
                 .FirstOrDefaultAsync(r => r.RecipeId == id);
 
             if (recipe == null)
-            {
                 return NotFound();
-            }
-
-            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", recipe.CategoryId);
-            ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
-            ViewBag.Ingredients = new SelectList(_context.Ingredients, "IngredientId", "IngredientName"); // Danh sách tất cả thành phần có thể chọn
-
-            return View(recipe);
-        }
-
-
-        // POST: Recipes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RecipeId,RecipeName,Description,Instructions,ImageUrl,CreatedAt,IsApproved,CategoryId,UserId,OriginId,CookTime")] Recipe recipe, IFormFile? imageFile, List<DetailRecipeIngredient> DetailRecipeIngredients)
-        {
-            if (id != recipe.RecipeId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var existingRecipe = await _context.Recipes
-                        .Include(r => r.DetailRecipeIngredients)
-                        .FirstOrDefaultAsync(r => r.RecipeId == id);
-
-                    if (existingRecipe == null)
-                    {
-                        return NotFound();
-                    }
-
-                    existingRecipe.RecipeName = recipe.RecipeName;
-                    existingRecipe.Description = recipe.Description;
-                    existingRecipe.Instructions = recipe.Instructions;
-                    existingRecipe.CategoryId = recipe.CategoryId;
-                    existingRecipe.OriginId = recipe.OriginId;
-                    existingRecipe.CookTime = recipe.CookTime;
-                    existingRecipe.IsApproved = recipe.IsApproved;
-                    existingRecipe.UpdateAt = DateTime.Now;
-                    if (imageFile != null)
-                    {
-                        string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await imageFile.CopyToAsync(fileStream);
-                        }
-
-                        existingRecipe.ImageUrl = "/images/" + uniqueFileName;
-                    }
-
-                    // 🔥 Cập nhật danh sách nguyên liệu (DetailRecipeIngredients)
-                    existingRecipe.DetailRecipeIngredients.Clear();
-                    foreach (var item in DetailRecipeIngredients)
-                    {
-                        existingRecipe.DetailRecipeIngredients.Add(new DetailRecipeIngredient
-                        {
-                            RecipeId = id,
-                            IngredientId = item.IngredientId,
-                            Amount = item.Amount
-                        });
-                    }
-
-                    _context.Update(existingRecipe);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RecipeExists(recipe.RecipeId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
 
             ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", recipe.CategoryId);
             ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
@@ -369,6 +281,128 @@ namespace RecipeWeb.Controllers
             return View(recipe);
         }
 
+        // POST: Recipes/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("RecipeId,RecipeName,Description,Instructions,ImageUrl,CreatedAt,IsApproved,CategoryId,UserId,OriginId,CookTime")]
+        Recipe recipe,
+            IFormFile? imageFile,
+            List<DetailRecipeIngredient> DetailRecipeIngredients)
+        {
+            if (id != recipe.RecipeId)
+                return NotFound();
+
+            // 1) BẮT BUỘC NHẬP ÍT NHẤT 1 NGUYÊN LIỆU
+            if (DetailRecipeIngredients == null || !DetailRecipeIngredients.Any())
+            {
+                ModelState.AddModelError("", "You must enter at least one ingredient.");
+            }
+            else
+            {
+                // 2) BẮT BUỘC NHẬP AMOUNT CHO TỪNG NGUYÊN LIỆU
+                for (int i = 0; i < DetailRecipeIngredients.Count; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(DetailRecipeIngredients[i].Amount))
+                    {
+                        ModelState.AddModelError(
+                            $"DetailRecipeIngredients[{i}].Amount",
+                            "You must enter the amount for this ingredient.");
+                    }
+                }
+
+                // 3) NGĂN TRÙNG LẶP NGUYÊN LIỆU
+                var dups = DetailRecipeIngredients
+                    .Select((x, idx) => new { x.IngredientId, idx })
+                    .GroupBy(x => x.IngredientId)
+                    .Where(g => g.Count() > 1);
+
+                foreach (var grp in dups)
+                {
+                    foreach (var item in grp)
+                    {
+                        ModelState.AddModelError(
+                            $"DetailRecipeIngredients[{item.idx}].IngredientId",
+                            "This ingredient is already selected. Please choose a different one.");
+                    }
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                var existingRecipe = await _context.Recipes
+                    .Include(r => r.DetailRecipeIngredients)
+                    .FirstOrDefaultAsync(r => r.RecipeId == id);
+
+                if (existingRecipe == null)
+                    return NotFound();
+
+                // Cập nhật các trường chung
+                existingRecipe.RecipeName = recipe.RecipeName;
+                existingRecipe.Description = recipe.Description;
+                existingRecipe.Instructions = recipe.Instructions;
+                existingRecipe.CategoryId = recipe.CategoryId;
+                existingRecipe.OriginId = recipe.OriginId;
+                existingRecipe.CookTime = recipe.CookTime;
+                existingRecipe.IsApproved = recipe.IsApproved;
+                existingRecipe.UpdateAt = DateTime.Now;
+
+                // Xử lý ảnh mới nếu có
+                if (imageFile != null)
+                {
+                    string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
+                    string uniqueFileName = $"{Guid.NewGuid()}_{imageFile.FileName}";
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using var fs = new FileStream(filePath, FileMode.Create);
+                    await imageFile.CopyToAsync(fs);
+
+                    existingRecipe.ImageUrl = "/images/" + uniqueFileName;
+                }
+
+                // Cập nhật nguyên liệu:
+                //  a) Xóa những nguyên liệu đã bị gỡ ra khỏi form
+                var toRemove = existingRecipe.DetailRecipeIngredients
+                    .Where(old => !DetailRecipeIngredients.Any(n => n.IngredientId == old.IngredientId))
+                    .ToList();
+                foreach (var old in toRemove)
+                    existingRecipe.DetailRecipeIngredients.Remove(old);
+
+                //  b) Thêm mới hoặc cập nhật Amount
+                foreach (var newItem in DetailRecipeIngredients)
+                {
+                    var exist = existingRecipe.DetailRecipeIngredients
+                        .FirstOrDefault(d => d.IngredientId == newItem.IngredientId);
+                    if (exist != null)
+                    {
+                        exist.Amount = newItem.Amount;
+                    }
+                    else
+                    {
+                        existingRecipe.DetailRecipeIngredients.Add(new DetailRecipeIngredient
+                        {
+                            RecipeId = id,
+                            IngredientId = newItem.IngredientId,
+                            Amount = newItem.Amount
+                        });
+                    }
+                }
+
+                _context.Update(existingRecipe);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Nếu có lỗi, trả lại View và reload dropdown lists
+            ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", recipe.CategoryId);
+            ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
+            ViewBag.Ingredients = new SelectList(_context.Ingredients, "IngredientId", "IngredientName");
+
+            // Giữ lại dữ liệu form
+            recipe.DetailRecipeIngredients = DetailRecipeIngredients;
+            return View(recipe);
+        }
         // GET: Recipes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
