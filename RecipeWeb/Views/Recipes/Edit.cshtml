@@ -89,8 +89,8 @@
                             <div class="flex space-x-2 mb-2">
                                 <input type="hidden" name="DetailRecipeIngredients[@i].RecipeId" value="@Model.RecipeId" />
                                 <input type="hidden" name="DetailRecipeIngredients[@i].IngredientId" value="@ingredientsList[i].IngredientId" />
-
-                                <select name="DetailRecipeIngredients[@i].IngredientId" class="shadow border rounded py-2 px-3 text-gray-700 w-2/3">
+                                <select name="DetailRecipeIngredients[@i].IngredientId" class="ingredient-select shadow border rounded py-2 px-3 text-gray-700 w-1/3" onchange="toggleIngredientNameInput(this)">
+                                    <option value="">-- Select ingredient --</option>
                                     @foreach (var ingredient in ViewBag.Ingredients)
                                     {
                                         <option value="@ingredient.Value" selected="@(ingredient.Value == ingredientsList[i].IngredientId.ToString() ? "selected" : null)">
@@ -98,6 +98,8 @@
                                         </option>
                                     }
                                 </select>
+
+                                <input type="text" name="DetailRecipeIngredients[@i].IngredientName" value="@ingredientsList[i].Ingredient?.IngredientName" class="ingredient-name shadow border rounded py-2 px-3 text-gray-700 w-1/3" placeholder="Or type new name">
 
                                 <input type="text" name="DetailRecipeIngredients[@i].Amount" value="@ingredientsList[i].Amount" class="shadow border rounded py-2 px-3 text-gray-700 w-1/3" placeholder="Amount">
                                 <button type="button" onclick="removeIngredient(this)" class="bg-red-500 text-white px-3 py-1 rounded">x</button>
@@ -142,23 +144,39 @@
         });
 
         function addIngredient() {
-            const container = document.getElementById("ingredientsContainer");
-            const div = document.createElement("div");
-            div.classList.add("flex", "space-x-2", "mb-2");
+    const container = document.getElementById("ingredientsContainer");
+    const div = document.createElement("div");
+    div.classList.add("flex", "space-x-2", "mb-2");
 
-            div.innerHTML = `
-                        <select name="DetailRecipeIngredients[${ingredientIndex}].IngredientId" class="shadow border rounded py-2 px-3 text-gray-700 w-2/3">
-        @foreach (var ingredient in ViewBag.Ingredients)
-        {
-                                    <option value="@ingredient.Value">@ingredient.Text</option>
-        }
-                        </select>
-                        <input type="text" name="DetailRecipeIngredients[${ingredientIndex}].Amount" class="shadow border rounded py-2 px-3 text-gray-700 w-1/3" placeholder="Amount">
-                        <button type="button" onclick="removeIngredient(this)" class="bg-red-500 text-white px-3 py-1 rounded">x</button>
-                    `;
-            container.appendChild(div);
-            ingredientIndex++; // Tăng biến đếm
-        }
+    let options = `<option value="">-- Select ingredient --</option>`;
+    @foreach (var ingredient in ViewBag.Ingredients)
+    {
+        <text>
+            options += `<option value="@ingredient.Value">@ingredient.Text</option>`;
+        </text>
+    }
+
+                div.innerHTML = `
+            <select name="DetailRecipeIngredients[${ingredientIndex}].IngredientId" class="ingredient-select shadow border rounded py-2 px-3 text-gray-700 w-1/3" onchange="toggleIngredientNameInput(this)">
+                ${options}
+            </select>
+            <input type="text" name="DetailRecipeIngredients[${ingredientIndex}].IngredientName" class="ingredient-name shadow border rounded py-2 px-3 text-gray-700 w-1/3" placeholder="Or type new name">
+            <input type="text" name="DetailRecipeIngredients[${ingredientIndex}].Amount" class="shadow border rounded py-2 px-3 text-gray-700 w-1/4" placeholder="Amount">
+            <button type="button" onclick="removeIngredient(this)" class="bg-red-500 text-white px-3 py-1 rounded">x</button>
+        `;
+
+    container.appendChild(div);
+    ingredientIndex++;
+            // Gán sự kiện cho phần tử vừa thêm
+            div.querySelector(".ingredient-select").addEventListener("change", function () {
+                toggleIngredientNameInput(this);
+            });
+            div.querySelector(".ingredient-name").addEventListener("input", function () {
+                toggleSelectWhenTyping(this);
+            });
+
+}
+
 
         function removeIngredient(button) {
             button.parentElement.remove();
@@ -169,10 +187,40 @@
             const container = document.getElementById("ingredientsContainer");
             const ingredients = container.children;
             for (let i = 0; i < ingredients.length; i++) {
-                ingredients[i].querySelector("select").setAttribute("name", `DetailRecipeIngredients[${i}].IngredientId`);
-                ingredients[i].querySelector("input[type='text']").setAttribute("name", `DetailRecipeIngredients[${i}].Amount`);
+                const select = ingredients[i].querySelector(".ingredient-select");
+                const nameInput = ingredients[i].querySelector(".ingredient-name");
+                const amountInput = ingredients[i].querySelectorAll("input")[1]; // input thứ 2 (sau nameInput)
+
+                if (select) select.setAttribute("name", `DetailRecipeIngredients[${i}].IngredientId`);
+                if (nameInput) nameInput.setAttribute("name", `DetailRecipeIngredients[${i}].IngredientName`);
+                if (amountInput) amountInput.setAttribute("name", `DetailRecipeIngredients[${i}].Amount`);
             }
         }
+
+        function toggleIngredientNameInput(selectElement) {
+            const container = selectElement.parentElement;
+            const input = container.querySelector(".ingredient-name");
+
+            if (selectElement.value) {
+                input.value = ""; // Xóa ô nhập tay
+                input.style.display = "none";
+            } else {
+                input.style.display = "block";
+            }
+        }
+
+        function toggleSelectWhenTyping(inputElement) {
+            const container = inputElement.parentElement;
+            const select = container.querySelector(".ingredient-select");
+
+            if (inputElement.value.trim() !== "") {
+                select.value = ""; // Reset lại select nếu gõ tay
+                select.style.display = "none";
+            } else {
+                select.style.display = "block";
+            }
+        }
+
     </script>
 
 </body>

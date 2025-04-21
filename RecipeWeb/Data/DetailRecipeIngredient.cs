@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RecipeWeb.Data;
 
 public partial class DetailRecipeIngredient
 {
-    public int IngredientId { get; set; }
+    public int? IngredientId { get; set; }
 
     public int RecipeId { get; set; }
 
@@ -17,4 +18,8 @@ public partial class DetailRecipeIngredient
 
     [ValidateNever]
     public virtual Recipe Recipe { get; set; } = null!;
+
+    [NotMapped]
+    public string? IngredientName { get; set; }
+
 }
