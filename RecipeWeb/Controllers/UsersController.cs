@@ -39,9 +39,11 @@ namespace RecipeWeb.Controllers
             // Kiểm tra nếu tài khoản bị cấm
             if (account.IsBanned == true)
             {
-                TempData["ErrorMessage"] = "Your account has been banned!";
+                TempData["BannedMessage"] = "Your account has been banned!";
+                TempData["BanReason"] = account.BanReason;
                 return RedirectToAction("Login");
             }
+
             TempData["SuccessMessage"] = "Login successful! ";
 
             HttpContext.Session.SetInt32("AccountId", account.UserId);
@@ -202,14 +204,24 @@ namespace RecipeWeb.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        // Xử lý chặn hoặc gỡ chặn người dùng
         [HttpPost]
-        public IActionResult BanUser(int id, bool isBanned)
+        public IActionResult BanUser(int id, bool isBanned, string? banReason, string? customReason)
         {
             var user = _context.Users.Find(id);
             if (user != null)
             {
-                user.IsBanned = isBanned; // Cập nhật trạng thái chặn/gỡ chặn
+                user.IsBanned = isBanned;
+
+                // Save reason only when banning
+                if (isBanned)
+                {
+                    user.BanReason = banReason == "Other" ? customReason : banReason;
+                }
+                else
+                {
+                    user.BanReason = null; // Clear reason when unbanning
+                }
+
                 _context.SaveChanges();
             }
             return RedirectToAction("UserManagement", new { status = isBanned ? "blocked" : "active" });

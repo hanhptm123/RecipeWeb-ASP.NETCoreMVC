@@ -25,6 +25,8 @@ public partial class User
 
     public string Gender { get; set; } = null!;
 
+    public string? BanReason { get; set; }
+
     public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
 
     public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();

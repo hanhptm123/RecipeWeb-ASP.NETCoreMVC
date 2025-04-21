@@ -13,12 +13,17 @@
 </head>
 
 <body>
+	
 	<!-- partial:index.partial.html -->
 	<form asp-action="Login" asp-controller="Users">
-		@if (TempData["ErrorMessage"] != null)
+		@if (TempData["BannedMessage"] != null)
 		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["ErrorMessage"]
+			<div class="alert alert-danger text-center" role="alert">
+				@TempData["BannedMessage"]<br />
+				@if (TempData["BanReason"] != null)
+				{
+					<strong>Reason:</strong> @TempData["BanReason"]
+				}
 			</div>
 		}
 		else if (TempData["SuccessMessage"] != null)
@@ -27,6 +32,14 @@
 				@TempData["SuccessMessage"]
 			</div>
 		}
+		@if (TempData["ErrorMessage"] != null)
+		{
+			<div class="alert alert-danger" role="alert" id="errorMessage">
+				@TempData["ErrorMessage"]
+			</div>
+		}
+
+		
 
 		<div class="svgContainer">
 			<div>
