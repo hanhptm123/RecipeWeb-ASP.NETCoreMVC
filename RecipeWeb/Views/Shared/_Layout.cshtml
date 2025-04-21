@@ -75,6 +75,34 @@
             </div>
         </nav>
     </header>
+     @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="alert" id="successMessage">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <script>
+        // Kiểm tra xem có thông báo nào được hiển thị không
+        window.onload = function() {
+            var successMessage = document.getElementById("successMessage");
+            var errorMessage = document.getElementById("errorMessage");
+
+            // Nếu có thông báo, ẩn sau 3 giây
+            if (successMessage || errorMessage) {
+                setTimeout(function() {
+                    if (successMessage) {
+                        successMessage.style.display = "none";
+                    }
+                    if (errorMessage) {
+                        errorMessage.style.display = "none";
+                    }
+                }, 3000); // 3000ms = 3 giây
+            }
+        };
+    </script>
+
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

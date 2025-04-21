@@ -24,6 +24,10 @@
             <th>Avatar</th>
             <th>User Name</th>
             <th>Email</th>
+            @if (isBlockedView)
+            {
+                <th>Ban Reason</th> <!-- Thêm dòng này -->
+            }
             <th>Action</th>
         </tr>
     </thead>
@@ -34,10 +38,29 @@
                 <td><img src="@user.Avatar" alt="Avatar" class="rounded-circle" width="40" height="40"></td>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
+                @if (isBlockedView)
+                {
+                    <td>@user.BanReason</td>
+                }
                 <td>
                     <form asp-action="BanUser" method="post" class="d-inline">
                         <input type="hidden" name="id" value="@user.UserId" />
                         <input type="hidden" name="isBanned" value="@(isBlockedView ? "false" : "true")" />
+
+                        @if (!isBlockedView)
+                        {
+                            <!-- Show only when banning -->
+                            <select name="banReason" class="form-select d-inline w-auto reason-select" required>
+                                <option disabled selected value="">-- Select ban reason --</option>
+                                <option value="Violation of terms of service">Violation of terms of service</option>
+                                <option value="Spamming content">Spamming content</option>
+                                <option value="Inappropriate language">Inappropriate language</option>
+                                <option value="Other">Other</option>
+                            </select>
+
+                            <input type="text" name="customReason" class="form-control mt-2 custom-reason-input d-none"
+                                   placeholder="Enter custom reason" />
+                        }
 
                         <button type="submit" class="btn btn-link p-0" data-bs-toggle="tooltip" title="@(isBlockedView ? "Unban this user" : "Ban this user")">
                             <i class="bi @(isBlockedView ? "bi-person-check text-success" : "bi-person-x text-danger")" style="font-size: 20px;"></i>
@@ -45,10 +68,30 @@
                     </form>
                 </td>
 
+
+
+
             </tr>
         }
     </tbody>
 </table>
+@section Scripts {
+    <script>
+        document.querySelectorAll('.reason-select').forEach(function (select) {
+            select.addEventListener('change', function () {
+                var customInput = this.closest('form').querySelector('.custom-reason-input');
+                if (this.value === 'Other') {
+                    customInput.classList.remove('d-none');
+                    customInput.required = true;
+                } else {
+                    customInput.classList.add('d-none');
+                    customInput.required = false;
+                }
+            });
+        });
+    </script>
+}
+
 
 <style>
     .active-tab {
