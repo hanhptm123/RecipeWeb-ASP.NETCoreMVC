@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-lg" style="background-color: #C6FF99; padding: 10px;">
             <div class="container-fluid d-flex align-items-center">
@@ -75,6 +75,7 @@
             </div>
         </nav>
     </header>
+
      @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success" role="alert" id="successMessage">
@@ -101,15 +102,13 @@
             }
         };
     </script>
-
-
-    <div class="container">
-        <main role="main" class="pb-3">
+   <div class="container flex-grow-1 d-flex flex-column">
+        <main role="main" class="pb-3 flex-grow-1">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="custom-footer">
+    <footer class="custom-footer mt-auto">
         <p>&copy; @DateTime.Now.Year My Website. All rights reserved.</p>
 
         <div class="footer-content">
@@ -130,8 +129,13 @@
 
 
 <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
     .custom-footer {
-        background-color: #C1FF8A; /* Màu xanh lá nhạt giống header */
+        background-color: #C1FF8A;
         padding: 15px 0;
         text-align: center;
     }

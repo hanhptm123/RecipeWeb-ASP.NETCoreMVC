@@ -1,46 +1,115 @@
 ﻿@model List<RecipeWeb.Data.Recipe>
 @{
     Layout = "_Layout";
-}
-@{
     ViewData["Title"] = "Search Results";
 }
 
-<h2>Search Results</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center text-primary">🔍 Search Results</h2>
 
-@if (Model.Count == 0)
-{
-    <p>No recipes found.</p>
-}
-else
-{
-    <ul class="list-group mt-3">
-        @foreach (var recipe in Model)
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        @if (Model.Any())
         {
-            <div class="col">
-                <div class="card h-100 shadow-lg">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">@recipe.RecipeName</h5>
-                        <span class="badge bg-info">@recipe.Category?.CategoryName</span>
-                    </div>
-                    <div class="card-body text-center">
-                        <img src="@(string.IsNullOrEmpty(recipe.ImageUrl) ? "/images/default-recipe.png" : recipe.ImageUrl)"
-                             alt="Recipe Image" class="img-fluid rounded recipe-img mb-2">
-                        <p class="text-muted">@recipe.Description</p>
-                        <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
-                        <p><strong>👁️ Views:</strong> @recipe.Countview</p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
-                            <i class="fas fa-eye"></i> View
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@recipe.RecipeId" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
+            @foreach (var recipe in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-lg">
+                        <!-- Header -->
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@recipe.RecipeName</h5>
+                            <div class="status-icon-wrapper position-relative">
+                                @if (recipe.IsApproved == true)
+                                {
+                                    <i class="fas fa-check-circle text-accepted" title="Accepted"></i>
+                                }
+                                else if (recipe.IsApproved == false)
+                                {
+                                    <i class="fas fa-times-circle text-danger" title="Cancelled" onclick="toggleReason(this)" style="cursor:pointer;"></i>
+                                    <div class="reason-box alert alert-danger" style="display: none;">
+                                        @recipe.RejectReason
+                                    </div>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-hourglass-half text-warning" title="Pending"></i>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="card-body d-flex flex-column">
+                            <div class="text-center">
+                                <img src="@(string.IsNullOrEmpty(recipe.ImageUrl) ? "/images/default-recipe.png" : recipe.ImageUrl)"
+                                     alt="Recipe Image" class="img-fluid rounded mb-2 recipe-img">
+                            </div>
+                            <p class="text-muted flex-grow-1">@recipe.Description</p>
+                            @if (recipe.IsApproved == true)
+                            {
+                                @await Component.InvokeAsync("RatingAverage", new { recipeId = recipe.RecipeId })
+                            }
+                            <p><strong>⏳ Cook Time:</strong> @recipe.CookTime min</p>
+                            <p><strong>📌 Category:</strong> @recipe.Category?.CategoryName</p>
+                            <p><strong>🌍 Origin:</strong> @recipe.Origin?.OriginName</p>
+                            <p><strong>📅 Posted On:</strong> @(recipe.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                            <p><strong>👨‍🍳 Created by:</strong> @(recipe.User?.UserName ?? "Ẩn danh")</p>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="card-footer d-flex justify-content-center">
+                            <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-info">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         }
+        else
+        {
+            <div class="col-12 text-center text-muted">No recipes found matching the search.</div>
+        }
+    </div>
+</div>
 
-    </ul>
-}
+<!-- CSS -->
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .status-icon-wrapper {
+        font-size: 20px;
+        position: relative;
+    }
+
+    .text-accepted {
+        color: #00ff99;
+    }
+
+    .card-body {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .reason-box {
+        position: absolute;
+        top: 110%;
+        right: 0;
+        z-index: 1050;
+        white-space: nowrap;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+</style>
+
+<!-- Script -->
+<script>
+    function toggleReason(iconElement) {
+        const reasonBox = iconElement.nextElementSibling;
+        reasonBox.style.display = reasonBox.style.display === "block" ? "none" : "block";
+    }
+</script>

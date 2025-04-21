@@ -545,24 +545,32 @@ namespace RecipeWeb.Controllers
 
             return RedirectToAction("ApproveList");
         }
-
         [HttpGet]
         public async Task<IActionResult> SearchByCategory(int? categoryId)
         {
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-
-            var recipes = _context.Recipes
+            var recipes = await _context.Recipes
                 .Include(r => r.Category)
-                .Where(r => r.IsApproved == true); // Chỉ lấy công thức đã duyệt
+                .Include(r => r.Origin)
+                .Include(r => r.User)
+                .Where(r => r.IsApproved == true && (!categoryId.HasValue || r.CategoryId == categoryId))
+                .ToListAsync();
 
-            if (categoryId.HasValue)
-            {
-                recipes = recipes.Where(r => r.CategoryId == categoryId);
-            }
+            var rankedRecipes = recipes
+                .Select(recipe => new
+                {
+                    Recipe = recipe,
+                    AvgRating = _context.Ratings
+                        .Where(r => r.RecipeId == recipe.RecipeId)
+                        .Average(r => (double?)r.RatingScore) ?? 0
+                })
+                .OrderByDescending(r => r.AvgRating)
+                .Select(r => r.Recipe)
+                .ToList();
 
-            var result = await recipes.ToListAsync();
-            return View(result);
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+            return View(rankedRecipes);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> SearchByIngredients(string ingredients)
@@ -583,16 +591,20 @@ namespace RecipeWeb.Controllers
                 .ToListAsync();
 
             var rankedRecipes = recipes
-                .Select(recipe => new
-                {
-                    Recipe = recipe,
-                    MatchCount = recipe.DetailRecipeIngredients
-                        .Count(dri => ingredientList.Contains(dri.Ingredient.IngredientName.ToLower()))
-                })
-                .Where(r => r.MatchCount > 0) // Loại bỏ công thức không có nguyên liệu trùng
-                .OrderByDescending(r => r.MatchCount) // Sắp xếp theo số nguyên liệu trùng giảm dần
-                .Select(r => r.Recipe)
-                .ToList();
+                 .Select(recipe => new
+                 {
+                     Recipe = recipe,
+                     MatchCount = recipe.DetailRecipeIngredients
+                         .Count(dri => ingredientList.Contains(dri.Ingredient.IngredientName.ToLower())),
+                     AvgRating = _context.Ratings
+                         .Where(r => r.RecipeId == recipe.RecipeId)
+                         .Average(r => (double?)r.RatingScore) ?? 0
+                 })
+                 .Where(r => r.MatchCount > 0)
+                 .OrderByDescending(r => r.MatchCount)
+                 .ThenByDescending(r => r.AvgRating)
+                 .Select(r => r.Recipe)
+                 .ToList();
 
             return View(rankedRecipes);
         }
@@ -606,10 +618,22 @@ namespace RecipeWeb.Controllers
             }
 
             var recipes = await _context.Recipes
-                .Where(r => r.RecipeName.Contains(searchTerm))
-                .ToListAsync();
+             .Where(r => r.RecipeName.Contains(searchTerm) && r.IsApproved == true)
+             .ToListAsync();
+            var rankedRecipes = recipes
+                .Select(recipe => new
+                {
+                    Recipe = recipe,
+                    AvgRating = _context.Ratings
+                        .Where(r => r.RecipeId == recipe.RecipeId)
+                        .Average(r => (double?)r.RatingScore) ?? 0
+                })
+                .OrderByDescending(r => r.AvgRating)
+                .Select(r => r.Recipe)
+                .ToList();
 
-            return View(recipes);
+            return View(rankedRecipes);
+
         }
     }
 }
