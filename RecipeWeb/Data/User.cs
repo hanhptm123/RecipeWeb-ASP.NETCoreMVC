@@ -23,7 +23,7 @@ public partial class User
 
     public string? PhoneNumber { get; set; }
 
-    public string Gender { get; set; } = null!;
+    public string? Gender { get; set; }
 
     public string? BanReason { get; set; }
 
