@@ -36,11 +36,14 @@
         <div class="col-md-3 sidebar p-3 rounded">
             <div class="list-group">
                 <a href="#" class="list-group-item list-group-item-action">My Profile</a>
-                <a href="#" class="list-group-item list-group-item-action">My Recipe Management</a>
+                <a href="@Url.Action("Create", "Recipes")" class="list-group-item list-group-item-action">Create New Recipes</a>
+                <a href="@Url.Action("Index", "Recipes")" class="list-group-item list-group-item-action">My Recipe Management</a>
+                <a href="@Url.Action("TopFavouriteRecipes", "Favourites")" class="list-group-item list-group-item-action">Top Favourite Recipes</a>
                 <a href="#" class="list-group-item list-group-item-action">...</a>
                 <a href="#" class="list-group-item list-group-item-action">...</a>
             </div>
         </div>
+
 
         <!-- Edit Profile Content -->
         <div class="col-md-9">
