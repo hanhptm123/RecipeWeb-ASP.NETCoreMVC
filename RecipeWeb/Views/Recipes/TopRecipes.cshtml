@@ -37,8 +37,8 @@
                     <th>#</th>
                     <th>Recipe Name</th>
                     <th>Views</th>
-                    <th>Category</th>
                     <th>Created At</th>
+                    <th>View Detail</th> <!-- Thêm cột View -->
                 </tr>
             </thead>
             <tbody>
@@ -51,8 +51,12 @@
                             <td>@index</td>
                             <td class="text-start">@recipe.RecipeName</td>
                             <td>@recipe.Countview</td>
-                            <td>@recipe.Category?.CategoryName</td>
                             <td>@recipe.CreatedAt?.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@recipe.RecipeId" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
                         </tr>
                         index++;
                     }

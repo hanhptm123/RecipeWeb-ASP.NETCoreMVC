@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Cooking_W_Loc.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header class="mb-2">
         <nav class="navbar navbar-expand-lg" style="background-color: #C6FF99; padding: 10px;">
             <div class="container-fluid d-flex align-items-center">
@@ -58,7 +58,7 @@
             </div>
         </nav>
     </header>
-    <div class="main container row">
+    <div class="main container row m-3">
         <div class="row">
             <div class="col-3">
                 <!-- Sidebar -->
@@ -72,17 +72,18 @@
                     </div>
                 </div>
             </div>
-            <div class="col-9">
-                <main role="main" class="body mt-3 p-3">
+            <div class="container col-8">
+                <main role="main" class="pb-3">
                     @RenderBody()
                 </main>
             </div>
         </div>
     </div>
 
-    <footer class="custom-footer">
+    <footer class="custom-footer mt-auto">
+        <p>&copy; @DateTime.Now.Year My Website. All rights reserved.</p>
+
         <div class="footer-content">
-            <p>&copy; 2024 My Website. All rights reserved.</p>
             <nav>
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms of Service</a>
@@ -141,8 +142,13 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
     .custom-footer {
-        background-color: #C1FF8A; /* Màu xanh lá nhạt giống header */
+        background-color: #C1FF8A;
         padding: 15px 0;
         text-align: center;
     }
