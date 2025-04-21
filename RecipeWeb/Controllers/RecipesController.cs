@@ -287,7 +287,7 @@ namespace RecipeWeb.Controllers
         public async Task<IActionResult> Edit(
             int id,
             [Bind("RecipeId,RecipeName,Description,Instructions,ImageUrl,CreatedAt,IsApproved,CategoryId,UserId,OriginId,CookTime")]
-        Recipe recipe,
+    Recipe recipe,
             IFormFile? imageFile,
             List<DetailRecipeIngredient> DetailRecipeIngredients)
         {
@@ -301,31 +301,56 @@ namespace RecipeWeb.Controllers
             }
             else
             {
-                // 2) BẮT BUỘC NHẬP AMOUNT CHO TỪNG NGUYÊN LIỆU
                 for (int i = 0; i < DetailRecipeIngredients.Count; i++)
                 {
-                    if (string.IsNullOrWhiteSpace(DetailRecipeIngredients[i].Amount))
+                    var item = DetailRecipeIngredients[i];
+
+                    // 2) BẮT BUỘC NHẬP AMOUNT
+                    if (string.IsNullOrWhiteSpace(item.Amount))
                     {
-                        ModelState.AddModelError(
-                            $"DetailRecipeIngredients[{i}].Amount",
-                            "You must enter the amount for this ingredient.");
+                        ModelState.AddModelError($"DetailRecipeIngredients[{i}].Amount", "You must enter the amount.");
+                    }
+
+                    // 3) Phải có ingredient chọn sẵn hoặc nhập tay
+                    if (item.IngredientId == 0 && string.IsNullOrWhiteSpace(item.IngredientName))
+                    {
+                        ModelState.AddModelError($"DetailRecipeIngredients[{i}].IngredientName", "You must select or enter an ingredient.");
                     }
                 }
 
-                // 3) NGĂN TRÙNG LẶP NGUYÊN LIỆU
-                var dups = DetailRecipeIngredients
-                    .Select((x, idx) => new { x.IngredientId, idx })
-                    .GroupBy(x => x.IngredientId)
-                    .Where(g => g.Count() > 1);
-
-                foreach (var grp in dups)
+                // 4) XỬ LÝ TÊN NGUYÊN LIỆU NHẬP TAY → chuyển thành ID
+                for (int i = 0; i < DetailRecipeIngredients.Count; i++)
                 {
-                    foreach (var item in grp)
+                    var item = DetailRecipeIngredients[i];
+                    if (!string.IsNullOrWhiteSpace(item.IngredientName))
                     {
-                        ModelState.AddModelError(
-                            $"DetailRecipeIngredients[{item.idx}].IngredientId",
-                            "This ingredient is already selected. Please choose a different one.");
+                        var existing = await _context.Ingredients
+                            .FirstOrDefaultAsync(i => i.IngredientName.ToLower() == item.IngredientName.ToLower());
+
+                        if (existing != null)
+                        {
+                            item.IngredientId = existing.IngredientId;
+                        }
+                        else
+                        {
+                            var newIngredient = new Ingredient { IngredientName = item.IngredientName.Trim() };
+                            _context.Ingredients.Add(newIngredient);
+                            await _context.SaveChangesAsync();
+                            item.IngredientId = newIngredient.IngredientId;
+                        }
                     }
+                }
+
+                // 5) TRÁNH TRÙNG LẶP NGUYÊN LIỆU (dù là chọn hay nhập tay)
+                var duplicateIds = DetailRecipeIngredients
+                    .GroupBy(x => x.IngredientId)
+                    .Where(g => g.Count() > 1)
+                    .SelectMany(g => g.Select((item, idx) => new { item, idx }))
+                    .ToList();
+
+                foreach (var dup in duplicateIds)
+                {
+                    ModelState.AddModelError($"DetailRecipeIngredients[{dup.idx}].IngredientId", "Duplicate ingredient.");
                 }
             }
 
@@ -338,7 +363,7 @@ namespace RecipeWeb.Controllers
                 if (existingRecipe == null)
                     return NotFound();
 
-                // Cập nhật các trường chung
+                // Cập nhật thông tin chung
                 existingRecipe.RecipeName = recipe.RecipeName;
                 existingRecipe.Description = recipe.Description;
                 existingRecipe.Instructions = recipe.Instructions;
@@ -348,32 +373,31 @@ namespace RecipeWeb.Controllers
                 existingRecipe.IsApproved = recipe.IsApproved;
                 existingRecipe.UpdateAt = DateTime.Now;
 
-                // Xử lý ảnh mới nếu có
+                // Xử lý ảnh
                 if (imageFile != null)
                 {
                     string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
                     string uniqueFileName = $"{Guid.NewGuid()}_{imageFile.FileName}";
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
                     using var fs = new FileStream(filePath, FileMode.Create);
                     await imageFile.CopyToAsync(fs);
-
                     existingRecipe.ImageUrl = "/images/" + uniqueFileName;
                 }
 
-                // Cập nhật nguyên liệu:
-                //  a) Xóa những nguyên liệu đã bị gỡ ra khỏi form
+                // XÓA những nguyên liệu không còn
                 var toRemove = existingRecipe.DetailRecipeIngredients
                     .Where(old => !DetailRecipeIngredients.Any(n => n.IngredientId == old.IngredientId))
                     .ToList();
+
                 foreach (var old in toRemove)
                     existingRecipe.DetailRecipeIngredients.Remove(old);
 
-                //  b) Thêm mới hoặc cập nhật Amount
+                // THÊM mới hoặc cập nhật
                 foreach (var newItem in DetailRecipeIngredients)
                 {
                     var exist = existingRecipe.DetailRecipeIngredients
                         .FirstOrDefault(d => d.IngredientId == newItem.IngredientId);
+
                     if (exist != null)
                     {
                         exist.Amount = newItem.Amount;
@@ -394,15 +418,14 @@ namespace RecipeWeb.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Nếu có lỗi, trả lại View và reload dropdown lists
+            // Trả lại view khi lỗi
             ViewBag.CategoryId = new SelectList(_context.Categories, "CategoryId", "CategoryName", recipe.CategoryId);
             ViewBag.OriginId = new SelectList(_context.Origins, "OriginId", "OriginName", recipe.OriginId);
             ViewBag.Ingredients = new SelectList(_context.Ingredients, "IngredientId", "IngredientName");
-
-            // Giữ lại dữ liệu form
             recipe.DetailRecipeIngredients = DetailRecipeIngredients;
             return View(recipe);
         }
+
         // GET: Recipes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
