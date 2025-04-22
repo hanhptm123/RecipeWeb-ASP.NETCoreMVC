@@ -1,5 +1,6 @@
 ﻿@model List<RecipeWeb.Data.Recipe>
 @{
+    var favouriteRecipes = ViewBag.FavouriteRecipeIds as List<int> ?? new List<int>();
     Layout = "_Layout";
     ViewData["Title"] = "Search Recipes by Category";
 }
@@ -33,23 +34,9 @@
                         <!-- Header -->
                         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@recipe.RecipeName</h5>
-                            <div class="status-icon-wrapper position-relative">
-                                @if (recipe.IsApproved == true)
-                                {
-                                    <i class="fas fa-check-circle text-accepted" title="Accepted"></i>
-                                }
-                                else if (recipe.IsApproved == false)
-                                {
-                                    <i class="fas fa-times-circle text-danger" title="Cancelled" onclick="toggleReason(this)" style="cursor:pointer;"></i>
-                                    <div class="reason-box alert alert-danger" style="display: none;">
-                                        @recipe.RejectReason
-                                    </div>
-                                }
-                                else
-                                {
-                                    <i class="fas fa-hourglass-half text-warning" title="Pending"></i>
-                                }
-                            </div>
+                            <button class="btn btn-light fav-button" data-recipe-id="@recipe.RecipeId">
+                                <i class="fav-icon @(favouriteRecipes.Contains(recipe.RecipeId) ? "fas fa-heart text-danger" : "far fa-heart text-muted")"></i>
+                            </button>
                         </div>
 
                         <!-- Body -->
@@ -128,4 +115,46 @@
         const reasonBox = iconElement.nextElementSibling;
         reasonBox.style.display = reasonBox.style.display === "none" || reasonBox.style.display === "" ? "block" : "none";
     }
+</script>
+<!-- Custom CSS -->
+<style>
+    .recipe-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .card-body {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+</style>
+
+<!-- AJAX -->
+<script>
+    $(document).ready(function () {
+        $(".fav-button").on("click", function () {
+            var button = $(this);
+            var recipeId = button.data("recipe-id");
+            var icon = button.find(".fav-icon");
+
+            $.ajax({
+                url: "/Home/ToggleFavourite",
+                type: "POST",
+                data: { recipeId: recipeId },
+                success: function (response) {
+                    if (response.success) {
+                        icon.toggleClass("far text-muted fas text-danger");
+                    } else {
+                        alert("❌ Error: " + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Request failed: " + error);
+                }
+            });
+        });
+    });
 </script>
