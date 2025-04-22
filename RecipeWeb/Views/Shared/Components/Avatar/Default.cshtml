@@ -21,7 +21,7 @@
 
                 @if (User.IsInRole("Admin") && Context.Request.Path != "/Home/AdminLayout")
                 {
-                    <a href="@Url.Action("AdminLayout", "Home")">
+                    <a href="@Url.Action("ApproveList", "Recipes")">
                         <i class="fas fa-user-cog"></i> Admin Page
                     </a>
                 }

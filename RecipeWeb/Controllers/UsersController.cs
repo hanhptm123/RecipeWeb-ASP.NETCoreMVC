@@ -178,7 +178,7 @@ namespace RecipeWeb.Controllers
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Profile updated successfully!";
+            TempData["EditSuccessMessage"] = "Profile updated successfully!";
             return RedirectToAction("Profile");
         }
 

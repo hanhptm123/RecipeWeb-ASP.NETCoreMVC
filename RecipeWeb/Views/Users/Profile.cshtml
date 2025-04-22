@@ -39,8 +39,7 @@
                 <a href="@Url.Action("Create", "Recipes")" class="list-group-item list-group-item-action">Create New Recipes</a>
                 <a href="@Url.Action("Index", "Recipes")" class="list-group-item list-group-item-action">My Recipe Management</a>
                 <a href="@Url.Action("TopFavouriteRecipes", "Favourites")" class="list-group-item list-group-item-action">Top Favourite Recipes</a>
-                <a href="#" class="list-group-item list-group-item-action">...</a>
-                <a href="#" class="list-group-item list-group-item-action">...</a>
+               
             </div>
         </div>
       
@@ -48,17 +47,15 @@
         <div class="col-md-9">
             <div class="card profile-card">
                 <h1 class="text-center mb-4">My Profile</h1>
-                @if (TempData["SuccessMessage"] != null)
+                @if (TempData["EditSuccessMessage"] != null)
                 {
-                    <div class="alert alert-success" id="successMessage">
-                        @TempData["SuccessMessage"]
+                    <div class="alert alert-success" id="editSuccessMessage">
+                        @TempData["EditSuccessMessage"]
                     </div>
-                    <script>
-                        setTimeout(function () {
-                            document.getElementById("successMessage").style.display = "none";
-                        }, 3000);
-                    </script>
+                
                 }
+
+
                 <!-- Profile Picture -->
                 <div class="text-center">
                     <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; display: inline-block;">
@@ -112,3 +109,13 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+            var editSuccessMessage = document.getElementById("editSuccessMessage");
+            if (editSuccessMessage) {
+                editSuccessMessage.style.display = "none";
+            }
+        }, 3000);
+    });
+</script>
