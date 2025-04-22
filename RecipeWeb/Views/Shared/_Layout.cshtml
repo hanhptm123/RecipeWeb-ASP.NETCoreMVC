@@ -119,7 +119,25 @@
             </nav>
         </div>
     </footer>
+    <script>
+        function toggleDropdown() {
+            let dropdown = document.getElementById("avatar-dropdown");
+            dropdown.classList.toggle("show");
+        }
 
+        // Ẩn dropdown khi click ra ngoài
+        document.addEventListener("click", function (event) {
+            let dropdown = document.getElementById("avatar-dropdown");
+            let avatarContainer = document.querySelector(".avatar-container");
+
+            if (!avatarContainer.contains(event.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    </script>
+
+    <!-- Import FontAwesome nếu chưa có -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
