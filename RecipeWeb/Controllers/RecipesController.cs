@@ -589,6 +589,7 @@ namespace RecipeWeb.Controllers
                 .ThenInclude(dri => dri.Ingredient)
                 .Include(r => r.Category)
                 .Include(r => r.Origin)
+                .Include(r => r.User)
                 .Where(r => r.IsApproved == true) // Chỉ lấy công thức đã được duyệt
                 .ToListAsync();
 
@@ -621,7 +622,8 @@ namespace RecipeWeb.Controllers
 
             var recipes = await _context.Recipes
              .Include(r => r.Origin)
-            .Include(r => r.Category) 
+            .Include(r => r.Category)
+            .Include(r => r.User)
             .Where(r => r.RecipeName.Contains(searchTerm) && r.IsApproved == true)
             .ToListAsync();
             var rankedRecipes = recipes
