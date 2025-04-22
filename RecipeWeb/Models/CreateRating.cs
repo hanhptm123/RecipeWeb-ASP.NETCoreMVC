@@ -26,12 +26,17 @@ namespace RecipeWeb.Models
 
             var recipe = await _context.Recipes
                 .Where(r => r.RecipeId == recipeId)
-                .Select(r => new { r.IsApproved })
+                .Select(r => new { r.IsApproved, r.UserId }) // Lấy UserId để kiểm tra chủ công thức
                 .FirstOrDefaultAsync();
 
             if (recipe == null || recipe.IsApproved == null)
             {
-                return Content(string.Empty); // Không hiển thị gì nếu công thức chưa được duyệt
+                return Content(string.Empty); // Không hiển thị nếu công thức không tồn tại hoặc chưa được duyệt
+            }
+
+            if (recipe.UserId == userId)
+            {
+                return Content(string.Empty); // Không hiển thị nếu người dùng là chủ công thức
             }
 
             var existingRating = await _context.Ratings
@@ -39,7 +44,7 @@ namespace RecipeWeb.Models
 
             if (existingRating != null)
             {
-                return Content(string.Empty); // Không hiển thị gì nếu đã đánh giá
+                return Content(string.Empty); // Không hiển thị nếu đã đánh giá
             }
 
             var model = new Rating
@@ -52,6 +57,7 @@ namespace RecipeWeb.Models
 
             return View(model);
         }
+
 
 
     }
