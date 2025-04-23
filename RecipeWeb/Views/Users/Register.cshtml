@@ -37,8 +37,11 @@
 
     <div class="inputGroup inputGroup3">
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password" required
+               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$"
+               title="Password must be at least 8 characters and include uppercase, lowercase, number, and special character.">
     </div>
+
 
     <div class="inputGroup inputGroup3">
         <button type="submit">Register</button>

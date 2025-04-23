@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.RegularExpressions;
 
 namespace RecipeWeb.Controllers
 {
@@ -76,6 +77,14 @@ namespace RecipeWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(string userName, string email, string password)
         {
+            // Kiểm tra độ mạnh của mật khẩu
+            var passwordRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$");
+            if (!passwordRegex.IsMatch(password))
+            {
+                TempData["ErrorMessage"] = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.";
+                return RedirectToAction("Register");
+            }
+
             // Kiểm tra xem email đã tồn tại chưa
             if (_context.Users.Any(u => u.Email == email))
             {
