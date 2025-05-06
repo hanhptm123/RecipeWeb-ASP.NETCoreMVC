@@ -8,7 +8,7 @@
 
 ### 👨‍🍳 Người dùng
 - Đăng ký, đăng nhập và chỉnh sửa thông tin cá nhân.
-- Tìm kiếm công thức theo tên hoặc nguyên liệu.
+- Tìm kiếm công thức theo tên hoặc nguyên liệu, thể loại.
 - Đăng công thức nấu ăn mới.
 - Sửa, xóa công thức cá nhân.
 - Đánh giá và bình luận công thức.
@@ -17,48 +17,25 @@
 ### 🛡️ Quản trị viên
 - Duyệt và kiểm duyệt các công thức do người dùng đăng.
 - Quản lý thông tin và trạng thái người dùng.
-- Thống kê số liệu về công thức, lượt xem, lượt yêu thích,...
+- Thống kê số liệu về công thức, lượt đánh giá, lượt yêu thích,lượt xem...
 
 ---
 
 ## 🛠️ Công nghệ sử dụng
 
-- **Backend:** ASP.NET Core MVC
-- **Frontend:** HTML, CSS, Bootstrap, JavaScript
-- **Database:** SQL Server
-- **Thiết kế giao diện:** Figma (mockup)
-- **Quản lý mã nguồn:** GitHub
-
----
-
-## 🧪 Hướng dẫn chạy ứng dụng
-
-1. Clone repository:
-   ```
-  git clone https://github.com/hanhptm123/RecipeWeb-ASP.NETCoreMVC.git  
-   ```
-
-2. Mở bằng Visual Studio hoặc VS Code.
-
-3. Thiết lập chuỗi kết nối với SQL Server trong `appsettings.json`.
-
-4. Chạy lệnh để cập nhật database nếu có dùng EF Core:
-   ```
-   dotnet ef database update
-   ```
-
-5. Chạy ứng dụng:
-   ```
-   dotnet run
-   ```
+- **Backend:** ASP.NET Core MVC  
+- **Frontend:** HTML, CSS, Bootstrap, JavaScript  
+- **Database:** SQL Server  
+- **Thiết kế giao diện:** Figma (mockup)  
+- **Quản lý mã nguồn:** GitHub  
 
 ---
 
 ## 🧑‍💻 Nhóm phát triển
 
-- **Phạm Thị Mỹ Hạnh** – Đăng nhập, Đăng ký, Quản lý người dùng, bình luận đánh giá công thức
-- **Đặng Thị Ngọc Tiên** – Đăng, sửa, xem công thức và lưu công thức yêu thích, thống kê lượt yêu thích
-- **Phương Hữu Gia Lộc** – Thống kê số liệu, duyệt công thức, tìm kiếm công thức  
+- **Phạm Thị Mỹ Hạnh** – Đăng nhập,Đăng kí, Quản lý trang cá nhân, Quản lý người dùng, Bình luận, đánh giá công thức 
+- **Đặng Thị Ngọc Tiên** – Đăng, sửa, xem công thức và lưu công thức yêu thích, thống kê lượt yêu thích 
+- **Phương Hữu Gia Lộc** – Thống kê số liệu, duyệt công thức, tìm kiếm theo tên, nguyên liệu, thể loại  
 
 ---
 
